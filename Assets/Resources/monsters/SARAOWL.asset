@@ -15,8 +15,7 @@ MonoBehaviour:
   id: 9
   speciesName: SARAOWL
   type: 3
-  health: 150
-  attack: 150
-  defense: 150
-  speed: 150
-  gender: 0
+  baseHP: 150
+  baseAttack: 150
+  baseDefense: 150
+  baseSpeed: 150

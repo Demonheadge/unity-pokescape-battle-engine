@@ -14,9 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp-Editor::MonsterInformation
   id: 4
   speciesName: ZAMLING
-  type: 2
-  health: 50
-  attack: 50
-  defense: 50
-  speed: 50
-  gender: 50
+  type: 5
+  baseHP: 50
+  baseAttack: 50
+  baseDefense: 50
+  baseSpeed: 50

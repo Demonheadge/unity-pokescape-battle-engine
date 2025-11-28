@@ -16,6 +16,6 @@ MonoBehaviour:
   type: 12
   effect: 0
   effect_secondary: 0
-  damage: 10
+  damage: 200
   accuracy: 100
-  move_catagory: 0
+  catagory: 0

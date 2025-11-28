@@ -14,9 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp-Editor::MonsterInformation
   id: 6
   speciesName: ZAMOHAWK
-  type: 2
-  health: 150
-  attack: 150
-  defense: 150
-  speed: 150
-  gender: 50
+  type: 5
+  baseHP: 150
+  baseAttack: 150
+  baseDefense: 150
+  baseSpeed: 150

@@ -1,0 +1,105 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9f267f02ba881a4409a14876c2768781, type: 3}
+  m_Name: MonsterDatabase
+  m_EditorClassIdentifier: Assembly-CSharp::MonsterDatabase
+  monsters:
+  - species: 1
+    name: Guthling
+    type: 4
+    baseHP: 50
+    baseAttack: 50
+    baseDefense: 50
+    baseSpeed: 50
+    front_sprite: {fileID: -2690792559708188323, guid: 33675184a047bee47927b56875df6090, type: 3}
+    back_sprite: {fileID: -4571828015118065507, guid: d7fcc94f3c9924641bd013776831eeed, type: 3}
+    partyicon: {fileID: 6934086728263231946, guid: e8ac99d215eee8c47a2a3eb2724e936d, type: 3}
+  - species: 2
+    name: Guthbird
+    type: 4
+    baseHP: 100
+    baseAttack: 100
+    baseDefense: 100
+    baseSpeed: 100
+    front_sprite: {fileID: -2690792559708188323, guid: 16ec231264baad948ace7ffe591d4717, type: 3}
+    back_sprite: {fileID: -4571828015118065507, guid: f23db3a2559fbb54fa96a86f1bb1e554, type: 3}
+    partyicon: {fileID: 6934086728263231946, guid: b8ab0cad1969dd24e88536cb0ba9fd41, type: 3}
+  - species: 3
+    name: Guthraptor
+    type: 4
+    baseHP: 150
+    baseAttack: 150
+    baseDefense: 150
+    baseSpeed: 150
+    front_sprite: {fileID: -2690792559708188323, guid: a6d06b4e03895c846b9451adea987746, type: 3}
+    back_sprite: {fileID: -4571828015118065507, guid: 1b89007b054a66e4ba8489c51067b6ea, type: 3}
+    partyicon: {fileID: 6934086728263231946, guid: 627c15ee3241df94891504f3973c9173, type: 3}
+  - species: 4
+    name: Zamling
+    type: 5
+    baseHP: 50
+    baseAttack: 50
+    baseDefense: 50
+    baseSpeed: 50
+    front_sprite: {fileID: -2690792559708188323, guid: c5b2f5786fc20b44c992718aaff6e89d, type: 3}
+    back_sprite: {fileID: -4571828015118065507, guid: e6fc8274c1b7b73428c2f2fb2023b456, type: 3}
+    partyicon: {fileID: 6934086728263231946, guid: 1c9d897c977734a48b75c2a62083b1c4, type: 3}
+  - species: 5
+    name: Zambird
+    type: 5
+    baseHP: 100
+    baseAttack: 100
+    baseDefense: 100
+    baseSpeed: 100
+    front_sprite: {fileID: -2690792559708188323, guid: c28db1621f35cfd4888873cfbe231501, type: 3}
+    back_sprite: {fileID: -4571828015118065507, guid: 94845272faed64e46b23a756a7bb734c, type: 3}
+    partyicon: {fileID: 6934086728263231946, guid: ab6b05598411fec44bf223b602309982, type: 3}
+  - species: 6
+    name: Zamohawk
+    type: 5
+    baseHP: 150
+    baseAttack: 150
+    baseDefense: 150
+    baseSpeed: 150
+    front_sprite: {fileID: -2690792559708188323, guid: 46b9ae903dbaf0348813f38c35948df6, type: 3}
+    back_sprite: {fileID: -4571828015118065507, guid: 37a660b708ae44445b46fc563c151663, type: 3}
+    partyicon: {fileID: 6934086728263231946, guid: 2383e2e0a43d2724789d3e033a69edbd, type: 3}
+  - species: 7
+    name: Saraling
+    type: 3
+    baseHP: 50
+    baseAttack: 50
+    baseDefense: 50
+    baseSpeed: 50
+    front_sprite: {fileID: -2690792559708188323, guid: b611e36f806e15444ac90e2df2bd45e4, type: 3}
+    back_sprite: {fileID: -4571828015118065507, guid: 02b9151e2d6e376488c6857e2dbaa068, type: 3}
+    partyicon: {fileID: 6934086728263231946, guid: 82aa9d872cfc06c4c8247a2009f623ca, type: 3}
+  - species: 8
+    name: Sarabird
+    type: 3
+    baseHP: 100
+    baseAttack: 100
+    baseDefense: 100
+    baseSpeed: 100
+    front_sprite: {fileID: -2690792559708188323, guid: 5965f94384b1d7745bf8cbc3cf6db77e, type: 3}
+    back_sprite: {fileID: -4571828015118065507, guid: a933ec4922e3d134b827295180ea278b, type: 3}
+    partyicon: {fileID: 6934086728263231946, guid: 1322493227e8b5d4cafaef07c0d7537f, type: 3}
+  - species: 9
+    name: Saraowl
+    type: 3
+    baseHP: 150
+    baseAttack: 150
+    baseDefense: 150
+    baseSpeed: 150
+    front_sprite: {fileID: -2690792559708188323, guid: 192728d8708a01e41963f1cce6974508, type: 3}
+    back_sprite: {fileID: -4571828015118065507, guid: e29d348293b1cc34590e6607a2677cf4, type: 3}
+    partyicon: {fileID: 6934086728263231946, guid: 563b45789e99cc6499dc5c58b4fa9cfe, type: 3}

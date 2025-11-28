@@ -14,9 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp-Editor::MonsterInformation
   id: 3
   speciesName: GUTHRAPTOR
-  type: 1
-  health: 150
-  attack: 150
-  defense: 150
-  speed: 150
-  gender: 100
+  type: 4
+  baseHP: 150
+  baseAttack: 150
+  baseDefense: 150
+  baseSpeed: 150

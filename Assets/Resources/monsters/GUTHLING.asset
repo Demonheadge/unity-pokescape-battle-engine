@@ -14,9 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp-Editor::MonsterInformation
   id: 1
   speciesName: GUTHLING
-  type: 1
-  health: 50
-  attack: 50
-  defense: 50
-  speed: 50
-  gender: 100
+  type: 4
+  baseHP: 50
+  baseAttack: 50
+  baseDefense: 50
+  baseSpeed: 50

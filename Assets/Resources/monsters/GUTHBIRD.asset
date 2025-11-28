@@ -14,9 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp-Editor::MonsterInformation
   id: 2
   speciesName: GUTHBIRD
-  type: 1
-  health: 100
-  attack: 100
-  defense: 100
-  speed: 100
-  gender: 100
+  type: 4
+  baseHP: 100
+  baseAttack: 100
+  baseDefense: 100
+  baseSpeed: 100

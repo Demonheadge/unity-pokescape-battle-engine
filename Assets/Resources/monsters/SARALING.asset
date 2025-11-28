@@ -15,8 +15,7 @@ MonoBehaviour:
   id: 7
   speciesName: SARALING
   type: 3
-  health: 50
-  attack: 50
-  defense: 50
-  speed: 50
-  gender: 0
+  baseHP: 50
+  baseAttack: 50
+  baseDefense: 50
+  baseSpeed: 50

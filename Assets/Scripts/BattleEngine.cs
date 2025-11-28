@@ -1,169 +1,91 @@
-// 26/11/2025 AI-Tag
+// 29/11/2025 AI-Tag
 // This was created with the help of Assistant, a Unity Artificial Intelligence product.
 
-using System.Collections;
-using System.Collections.Generic; // Added for List<>
+using System;
+using UnityEditor;
 using UnityEngine;
-using UnityEngine.InputSystem; // Added for PlayerInput and InputAction
-using TMPro;
+using System.Collections.Generic;
 
 public class BattleEngine : MonoBehaviour
 {
-    public Transform playerSpawnLocation1;
-    public Transform playerSpawnLocation2; // Optional
-    public Transform enemySpawnLocation1;
-    public Transform enemySpawnLocation2; // Optional
-    public Transform enemySpawnLocation3; // Optional
-    public Transform enemySpawnLocation4; // Optional
+    public MonsterDatabase monsterDatabase;
+    public MoveDatabase moveDatabase;
 
-    public GameObject playerMonsterPrefab1;
-    public GameObject playerMonsterPrefab2; // Optional
-    public GameObject enemyMonsterPrefab1;
-    public GameObject enemyMonsterPrefab2; // Optional
-    public GameObject enemyMonsterPrefab3; // Optional
-    public GameObject enemyMonsterPrefab4; // Optional
+    private SpeciesInfo playerMonster;
+    private SpeciesInfo enemyMonster;
 
-    public TextMeshProUGUI battleStartText;
-    public TextMeshProUGUI battleEndText;
-
-    private GameObject playerMonster1;
-    private GameObject playerMonster2; // Optional
-    public List<GameObject> enemyMonsters = new List<GameObject>();
-
-    private bool battleActive = false;
-
-    private PlayerInput playerInput;
-    private InputAction startBattleAction;
-
-    public BattleUIManager battleUIManager; // Reference to BattleUIManager
-
-    private void Awake()
+    public void StartBattle(Species playerSpecies, Species enemySpecies)
     {
-        playerInput = GetComponent<PlayerInput>();
-        startBattleAction = playerInput.actions["StartBattle"];
-        startBattleAction.performed += ctx => StartBattle();
+        playerMonster = GetMonsterInfo(playerSpecies);
+        enemyMonster = GetMonsterInfo(enemySpecies);
+
+        Debug.Log($"Battle started between {playerMonster.name} and {enemyMonster.name}!");
     }
 
-    void StartBattle()
+    public void PlayerAttack(Move playerMove)
     {
-        if (battleActive) return;
+        MoveInformation moveInfo = GetMoveInfo(playerMove);
+        int damage = CalculateDamage(playerMonster, enemyMonster, moveInfo);
+        enemyMonster.baseHP -= damage;
 
-        battleActive = true;
-
-        // Display "Battle Start!" text
-        battleStartText.text = "Battle Start!";
-        battleStartText.gameObject.SetActive(true);
-
-        // Disable Choose_Options UI
-        //battleUIManager.SetChooseOptionsInteractable(false);
-
-        // Start coroutine to hide battleStartText after 5 seconds
-        StartCoroutine(HideBattleStartText());
-
-        // Spawn Player Monsters
-        playerMonster1 = Instantiate(playerMonsterPrefab1, playerSpawnLocation1.position, Quaternion.identity);
-        if (playerSpawnLocation2 != null && playerMonsterPrefab2 != null)
-        {
-            playerMonster2 = Instantiate(playerMonsterPrefab2, playerSpawnLocation2.position, Quaternion.identity);
-        }
-
-        // Spawn Enemy Monsters
-        enemyMonsters.Add(Instantiate(enemyMonsterPrefab1, enemySpawnLocation1.position, Quaternion.identity));
-        if (enemySpawnLocation2 != null && enemyMonsterPrefab2 != null)
-            enemyMonsters.Add(Instantiate(enemyMonsterPrefab2, enemySpawnLocation2.position, Quaternion.identity));
-        if (enemySpawnLocation3 != null && enemyMonsterPrefab3 != null)
-            enemyMonsters.Add(Instantiate(enemyMonsterPrefab3, enemySpawnLocation3.position, Quaternion.identity));
-        if (enemySpawnLocation4 != null && enemyMonsterPrefab4 != null)
-            enemyMonsters.Add(Instantiate(enemyMonsterPrefab4, enemySpawnLocation4.position, Quaternion.identity));
-
-        Debug.Log("Battle Started!");
+        Debug.Log($"{playerMonster.name} used {moveInfo.name}! It dealt {damage} damage to {enemyMonster.name}.");
+        CheckBattleOutcome();
     }
 
-    IEnumerator HideBattleStartText()
+    public void EnemyAttack(Move enemyMove)
     {
-        yield return new WaitForSeconds(2);
-        battleStartText.gameObject.SetActive(false);
+        MoveInformation moveInfo = GetMoveInfo(enemyMove);
+        int damage = CalculateDamage(enemyMonster, playerMonster, moveInfo);
+        playerMonster.baseHP -= damage;
 
-        // Enable Choose_Options UI
-        battleUIManager.SetChooseOptionsInteractable(true);
+        Debug.Log($"{enemyMonster.name} used {moveInfo.name}! It dealt {damage} damage to {playerMonster.name}.");
+        CheckBattleOutcome();
     }
 
-    public void EndBattle(string winner)
+    private SpeciesInfo GetMonsterInfo(Species species)
     {
-        battleActive = false;
-
-        // Despawn Player Monsters
-        if (playerMonster1 != null)
-            Destroy(playerMonster1); // Fixed: Destroy only the GameObject
-        if (playerMonster2 != null)
-            Destroy(playerMonster2); // Fixed: Destroy only the GameObject
-
-        // Despawn Enemy Monsters
-        foreach (var enemy in enemyMonsters)
+        foreach (var monster in monsterDatabase.monsters)
         {
-            if (enemy != null)
-                Destroy(enemy); // Fixed: Destroy only the GameObject
-        }
-        enemyMonsters.Clear();
-
-        // Display "Battle End" text
-        battleEndText.text = $"Battle End! {winner} wins!";
-        battleEndText.gameObject.SetActive(true);
-
-        Debug.Log("Battle Ended!");
-    }
-
-    public void PlayerAction(string action, GameObject targetEnemy = null)
-    {
-        if (!battleActive) return;
-
-        if (action == "Run")
-        {
-            EndBattle("Enemy");
-        }
-        else if (action == "Fight")
-        {
-            if (targetEnemy != null)
+            if (monster.species == species)
             {
-                ExecuteTurn(playerMonster1, targetEnemy);
+                return monster;
             }
         }
+        return null;
     }
 
-    void ExecuteTurn(GameObject attacker, GameObject target)
+    private MoveInformation GetMoveInfo(Move move)
     {
-        Monster_Information attackerStats = attacker.GetComponent<Monster_Information>();
-        Monster_Information targetStats = target.GetComponent<Monster_Information>();
-
-        if (attackerStats != null && targetStats != null)
+        foreach (var moveInfo in moveDatabase.moves)
         {
-            int damage = attackerStats.GetMoveDamage();
-            targetStats.TakeDamage(damage);
-
-            Debug.Log($"{attackerStats.monsterName} attacked {targetStats.monsterName} for {damage} damage!");
-
-            if (targetStats.hitPoints <= 0)
+            if (moveInfo.move == move)
             {
-                Debug.Log($"{targetStats.monsterName} has fainted!");
-                Destroy(target); // Fixed: Destroy only the GameObject
-                enemyMonsters.Remove(target);
+                return moveInfo;
             }
-
-            CheckBattleEnd();
         }
+        return null;
     }
 
-    void CheckBattleEnd()
+    private int CalculateDamage(SpeciesInfo attacker, SpeciesInfo defender, MoveInformation move)
     {
-        if (enemyMonsters.Count == 0)
+        if (move == null || move.type == MoveType.NONE)
         {
-            Debug.Log("Player wins!");
-            EndBattle("Player");
+            return 0;
         }
-        else if (playerMonster1.GetComponent<Monster_Information>().hitPoints <= 0 && (playerMonster2 == null || playerMonster2.GetComponent<Monster_Information>().hitPoints <= 0))
+
+        int damage = move.damage + attacker.baseAttack - defender.baseDefense;
+        return Mathf.Max(damage, 0); // Ensure damage is not negative
+    }
+
+    private void CheckBattleOutcome()
+    {
+        if (playerMonster.baseHP <= 0)
         {
-            Debug.Log("Player loses!");
-            EndBattle("Enemy");
+            Debug.Log($"{playerMonster.name} has fainted! {enemyMonster.name} wins!");
+        }
+        else if (enemyMonster.baseHP <= 0)
+        {
+            Debug.Log($"{enemyMonster.name} has fainted! {playerMonster.name} wins!");
         }
     }
 }
