@@ -1,15 +1,11 @@
 // 1/12/2025 AI-Tag
 // This was created with the help of Assistant, a Unity Artificial Intelligence product.
 
-using System;
-using UnityEditor;
-using UnityEngine;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-// 29/11/2025 AI-Tag
-// This was created with the help of Assistant, a Unity Artificial Intelligence product.
-
+using UnityEditor;
+using UnityEngine;
 
 public class LevelUpDataImporterWindow : EditorWindow
 {
@@ -26,15 +22,12 @@ public class LevelUpDataImporterWindow : EditorWindow
     {
         GUILayout.Label("Level Up Data Importer", EditorStyles.boldLabel);
 
-        // Input field for CSV file path
         EditorGUILayout.LabelField("CSV File Path:");
         csvFilePath = EditorGUILayout.TextField(csvFilePath);
 
-        // Field to assign the LevelUpDatabase ScriptableObject
         EditorGUILayout.LabelField("Level Up Database:");
         levelUpDatabase = (LevelUpDatabase)EditorGUILayout.ObjectField(levelUpDatabase, typeof(LevelUpDatabase), false);
 
-        // Import button
         if (GUILayout.Button("Import Level Up Data"))
         {
             ImportLevelUpData();
@@ -56,39 +49,33 @@ public class LevelUpDataImporterWindow : EditorWindow
         }
 
         string[] lines = File.ReadAllLines(csvFilePath);
+
+        var groupedData = lines.Skip(1)
+            .Select(line => line.Split(','))
+            .Where(values => values.Length >= 4)
+            .GroupBy(values => new { ID = ParseInt(values[0], 0), Name = ParseSpecies(values[1]) })
+            .ToDictionary(group => group.Key, group => group.Select(values => new MoveLevelPair
+            {
+                level = ParseInt(values[2], 0),
+                move = ParseMove(values[3])
+            }).ToList());
+
         levelUpDatabase.levelUpData.Clear();
 
-        foreach (string line in lines.Skip(1)) // Skip the header line
+        foreach (var group in groupedData)
         {
-            string[] values = line.Split(',');
-
-            // Ensure the line has enough data
-            if (values.Length < 4) // Adjust the number based on the fields in LevelUpInformation
-            {
-                Debug.LogWarning($"Line has insufficient data: {line}. Filling missing fields with default values.");
-                values = FillMissingValues(values, 4); // Ensure the array has 4 elements
-            }
-
-            // Parse data and handle invalid values
-            int id = ParseInt(values[0], 0); // Default ID to 0 if invalid
-            Species name = ParseSpecies(values[1]); // Parse Species enum or set to default
-            int level = ParseInt(values[2], 0); // Default level to 0 if invalid
-            Move move = ParseMove(values[3]); // Parse Move enum or set to default if invalid
-
-            // Create and add the level up data to the database
             LevelUpInformation levelUpInfo = new LevelUpInformation
             {
-                ID = id,
-                name = name,
-                level = level,
-                move = move
+                ID = group.Key.ID,
+                name = group.Key.Name,
+                moves = group.Value
             };
 
             levelUpDatabase.levelUpData.Add(levelUpInfo);
         }
 
-        EditorUtility.SetDirty(levelUpDatabase); // Mark the ScriptableObject as dirty to save changes
-        AssetDatabase.SaveAssets(); // Save the changes to the asset
+        EditorUtility.SetDirty(levelUpDatabase);
+        AssetDatabase.SaveAssets();
 
         Debug.Log($"Imported {levelUpDatabase.levelUpData.Count} level up entries from {csvFilePath}");
     }
@@ -133,7 +120,6 @@ public class LevelUpDataImporterWindow : EditorWindow
             return default(Move); // Default value for Move
         }
 
-        // Assuming Move is an enum, handle parsing accordingly
         if (System.Enum.TryParse(value, out Move move))
         {
             return move;
@@ -143,15 +129,5 @@ public class LevelUpDataImporterWindow : EditorWindow
             Debug.LogWarning($"Invalid Move value: {value}. Setting to default.");
             return default(Move); // Default value for Move
         }
-    }
-
-    private string[] FillMissingValues(string[] values, int requiredLength)
-    {
-        List<string> filledValues = new List<string>(values);
-        while (filledValues.Count < requiredLength)
-        {
-            filledValues.Add(""); // Add empty strings for missing values
-        }
-        return filledValues.ToArray();
     }
 }

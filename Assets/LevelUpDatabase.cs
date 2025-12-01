@@ -3,10 +3,10 @@
 
 using System;
 using UnityEditor;
-using UnityEngine;
 using System.Collections.Generic;
+using UnityEngine;
 
-[CreateAssetMenu(fileName = "LevelUpDatabase", menuName = "Game/LevelUp Database")]
+[CreateAssetMenu(fileName = "LevelUpDatabase", menuName = "Databases/LevelUpDatabase")]
 public class LevelUpDatabase : ScriptableObject
 {
     public List<LevelUpInformation> levelUpData = new List<LevelUpInformation>();

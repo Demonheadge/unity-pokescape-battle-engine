@@ -15,157 +15,57 @@ MonoBehaviour:
   levelUpData:
   - ID: 0
     name: 0
-    level: 0
-    move: 0
+    moves:
+    - level: 0
+      move: 0
   - ID: 1
     name: 1
-    level: 1
-    move: 2
-  - ID: 1
-    name: 1
-    level: 2
-    move: 3
-  - ID: 1
-    name: 1
-    level: 5
-    move: 4
-  - ID: 1
-    name: 1
-    level: 9
-    move: 5
-  - ID: 1
-    name: 1
-    level: 14
-    move: 6
-  - ID: 1
-    name: 1
-    level: 16
-    move: 7
-  - ID: 1
-    name: 1
-    level: 22
-    move: 8
-  - ID: 1
-    name: 1
-    level: 23
-    move: 9
-  - ID: 1
-    name: 1
-    level: 25
-    move: 10
-  - ID: 1
-    name: 1
-    level: 29
-    move: 11
-  - ID: 1
-    name: 1
-    level: 32
-    move: 12
-  - ID: 1
-    name: 1
-    level: 34
-    move: 13
-  - ID: 1
-    name: 1
-    level: 36
-    move: 14
-  - ID: 1
-    name: 1
-    level: 40
-    move: 15
-  - ID: 1
-    name: 1
-    level: 42
-    move: 16
-  - ID: 1
-    name: 1
-    level: 44
-    move: 17
-  - ID: 1
-    name: 1
-    level: 47
-    move: 18
+    moves:
+    - level: 1
+      move: 34
+    - level: 10
+      move: 2
+    - level: 20
+      move: 3
+    - level: 30
+      move: 4
+    - level: 40
+      move: 5
   - ID: 2
     name: 2
-    level: 1
-    move: 19
-  - ID: 2
-    name: 2
-    level: 2
-    move: 20
-  - ID: 2
-    name: 2
-    level: 3
-    move: 21
-  - ID: 2
-    name: 2
-    level: 4
-    move: 22
-  - ID: 2
-    name: 2
-    level: 8
-    move: 23
-  - ID: 2
-    name: 2
-    level: 11
-    move: 24
-  - ID: 2
-    name: 2
-    level: 18
-    move: 25
-  - ID: 2
-    name: 2
-    level: 19
-    move: 26
-  - ID: 2
-    name: 2
-    level: 21
-    move: 27
-  - ID: 2
-    name: 2
-    level: 24
-    move: 28
-  - ID: 2
-    name: 2
-    level: 28
-    move: 29
-  - ID: 2
-    name: 2
-    level: 32
-    move: 30
-  - ID: 2
-    name: 2
-    level: 34
-    move: 31
-  - ID: 2
-    name: 2
-    level: 36
-    move: 32
-  - ID: 2
-    name: 2
-    level: 40
-    move: 33
-  - ID: 2
-    name: 2
-    level: 43
-    move: 8
-  - ID: 2
-    name: 2
-    level: 45
-    move: 8
-  - ID: 2
-    name: 2
-    level: 47
-    move: 8
-  - ID: 2
-    name: 2
-    level: 50
-    move: 8
-  - ID: 2
-    name: 2
-    level: 56
-    move: 8
-  - ID: 2
-    name: 2
-    level: 60
-    move: 8
+    moves:
+    - level: 1
+      move: 34
+    - level: 10
+      move: 2
+    - level: 20
+      move: 3
+    - level: 30
+      move: 4
+    - level: 40
+      move: 5
+  - ID: 3
+    name: 3
+    moves:
+    - level: 1
+      move: 34
+    - level: 10
+      move: 2
+    - level: 20
+      move: 3
+    - level: 30
+      move: 4
+    - level: 40
+      move: 5
+    - level: 50
+      move: 35
+  - ID: 0
+    name: 6
+    moves:
+    - level: 50
+      move: 36
+  - ID: 0
+    name: 9
+    moves:
+    - level: 50
+      move: 37

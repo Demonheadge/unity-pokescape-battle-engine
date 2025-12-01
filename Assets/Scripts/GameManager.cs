@@ -19,6 +19,7 @@ public class GameManager : MonoBehaviour
     public GameObject partySlot5; // Reference to the Party_Slot_5 GameObject
     public GameObject partySlot6; // Reference to the Party_Slot_6 GameObject
     public MonsterDatabase monsterDatabase; // Reference to the MonsterDatabase asset
+    public LevelUpDatabase levelUpDatabase; // Reference to the LevelUpDatabase asset
     public GameObject enemyMonsterPrefab; // Prefab for the enemy monster
     public Transform enemySpawnPoint; // Transform where the enemy monster will spawn
     private GameObject currentEnemy;
@@ -41,6 +42,8 @@ public class GameManager : MonoBehaviour
         
     }
 
+    
+
     public void AddMonsterToParty()
     {
         if (playerParty.Count >= 6)
@@ -49,16 +52,23 @@ public class GameManager : MonoBehaviour
             return;
         }
 
+        // Generate random experience points for the monster (you can adjust this logic)
+        int randomExperience = UnityEngine.Random.Range(0, 1000000);
+        // Calculate the level based on experience
+        int calculatedLevel = CalculateLevel(randomExperience);
         // Randomly select a monster from the MonsterDatabase
         SpeciesInfo randomMonster = monsterDatabase.monsters[UnityEngine.Random.Range(0, monsterDatabase.monsters.Count)];
 
-        // Create a new SpawnedMonster instance
+        // Get usable moves based on LevelUpDatabase
+        List<Move> usableMoves = GetUsableMoves(randomMonster.species, randomMonster.ID, calculatedLevel);
+
+        // Randomly select moves from the usable moves list
         Extra_1_Monster_Info extra1Info = new Extra_1_Monster_Info
         {
-            move_1 = Move.BLOOD_BARRAGE,
-            move_2 = Move.NONE,
-            move_3 = Move.WIND_BLAST,
-            move_4 = Move.NONE
+            move_1 = SelectRandomMove(usableMoves),
+            move_2 = SelectRandomMove(usableMoves),
+            move_3 = SelectRandomMove(usableMoves),
+            move_4 = SelectRandomMove(usableMoves)
         };
 
         Extra_3_Monster_Info extra3Info = new Extra_3_Monster_Info
@@ -95,10 +105,6 @@ public class GameManager : MonoBehaviour
             skill_thieving = UnityEngine.Random.Range(1, 99)
         };
 
-        // Generate random experience points for the monster (you can adjust this logic)
-        int randomExperience = UnityEngine.Random.Range(0, 1000000);
-        // Calculate the level based on experience
-        int calculatedLevel = CalculateLevel(randomExperience);
         //Specific IV skills that affect stats
         int atk_melee_iv_total = extra3Info.skill_summoning; //+ extra3Info.skill_necromancy + extra3Info.skill_prayer;
         int atk_ranged_iv_total = extra3Info.skill_summoning;
@@ -125,8 +131,6 @@ public class GameManager : MonoBehaviour
             current_Defense_Ranged = ((2 * randomMonster.baseDefense_Ranged + (def_ranged_iv_total / 4)) * calculatedLevel) / 100,
             current_Defense_Magic = ((2 * randomMonster.baseDefense_Magic + (def_magic_iv_total / 4)) * calculatedLevel) / 100, 
         };
-
-        
 
         SpawnedMonster newMonster = new SpawnedMonster(randomMonster, extra1Info, extra2Info, extra3Info);
         playerParty.Add(newMonster);
@@ -194,8 +198,18 @@ public class GameManager : MonoBehaviour
                 case "Species":
                     text.text = monster.speciesInfo.species.ToString();
                     break;
+                case "ID":
+                    text.text = monster.speciesInfo.ID.ToString();
+                    break;
                 case "Nickname":
-                    text.text = monster.speciesInfo.name;
+                    if (monster.speciesInfo.name == null)
+                    {
+                        text.text = monster.speciesInfo.species.ToString();
+                    }
+                    else
+                    {
+                        text.text = monster.speciesInfo.name;
+                    }
                     break;
                 case "Type":
                     text.text = "Type: " + monster.speciesInfo.type;
@@ -444,5 +458,53 @@ public class GameManager : MonoBehaviour
 
         // Ensure the level is at least 1 and does not exceed maxLevel
         return Mathf.Clamp((int)level, 1, maxLevel);
+    }
+
+    private List<Move> GetUsableMoves(Species species, int id, int currentLevel)
+    {
+        List<Move> usableMoves = new List<Move>();
+
+        foreach (var levelUpInfo in levelUpDatabase.levelUpData)
+        {
+            // Check if the ID and species match
+            if (/*levelUpInfo.ID == id || */levelUpInfo.name == species)
+            {
+                foreach (var moveLevelPair in levelUpInfo.moves)
+                {
+                    // Check if the move is valid (not NONE and level > 0), not already in the list, and meets the level requirement
+                    if (moveLevelPair.move != Move.NONE && moveLevelPair.level > 0 && moveLevelPair.level <= currentLevel && !usableMoves.Contains(moveLevelPair.move))
+                    {
+                        usableMoves.Add(moveLevelPair.move);
+                        Debug.Log($"Added move: {moveLevelPair.move} (Level: {moveLevelPair.level}) to usable moves list.");
+                    }
+                    else if (moveLevelPair.move == Move.NONE || moveLevelPair.level == 0)
+                    {
+                        Debug.Log($"Skipped move: {moveLevelPair.move} (Level: {moveLevelPair.level}) as it is invalid.");
+                    }
+                }
+            }
+        }
+
+        // Log the final list of usable moves
+        Debug.Log($"Usable moves for {species} (ID: {id}, Level: {currentLevel}): {string.Join(", ", usableMoves)}");
+
+        return usableMoves;
+    }
+
+    // Helper method to select a random move and remove it from the list to avoid duplicates
+    private Move SelectRandomMove(List<Move> usableMoves)
+    {
+        // Check if there are any usable moves left
+        if (usableMoves.Count > 0)
+        {
+            int randomIndex = UnityEngine.Random.Range(0, usableMoves.Count);
+            Move selectedMove = usableMoves[randomIndex];
+            usableMoves.RemoveAt(randomIndex); // Remove the selected move to avoid duplicates
+            return selectedMove;
+        }
+
+        // If no usable moves are left, return NONE
+        Debug.LogWarning("No usable moves left to select. Defaulting to Move.NONE.");
+        return Move.NONE;
     }
 }

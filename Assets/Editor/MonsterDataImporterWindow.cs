@@ -69,13 +69,19 @@ public class MonsterDataImporterWindow : EditorWindow
             }
 
             // Parse data and handle invalid values
-            Species species = ParseSpecies(values[0]); // Parse Species enum or set to default
-            string name = CapitalizeName(values[0]); // Capitalize the name
-            MonsterType type = ParseMonsterType(values[1]); // Parse MonsterType enum or set to default
-            int baseHP = ParseInt(values[2], 0); // Default baseHP to 0 if invalid
-            int baseAttack = ParseInt(values[3], 0); // Default baseAttack to 0 if invalid
-            int baseDefense = ParseInt(values[4], 0); // Default baseDefense to 0 if invalid
-            int baseSpeed = ParseInt(values[5], 0); // Default baseSpeed to 0 if invalid
+            int id = ParseInt(values[0], 0); // Capitalize the name
+            Species species = ParseSpecies(values[1]); // Parse Species enum or set to default
+            string name = CapitalizeName(values[1]); // Capitalize the name
+            MonsterType type = ParseMonsterType(values[2]); // Parse MonsterType enum or set to default
+            int baseHP = ParseInt(values[3], 0); // Default baseHP to 0 if invalid
+            int baseSpeed = ParseInt(values[4], 0); // Default baseSpeed to 0 if invalid
+            int baseAttack_Melee = ParseInt(values[5], 0); // Default to 0 if invalid
+            int baseAttack_Ranged = ParseInt(values[6], 0); // Default to 0 if invalid
+            int baseAttack_Magic = ParseInt(values[7], 0); // Default to 0 if invalid
+            int baseDefense_Melee = ParseInt(values[8], 0); // Default to 0 if invalid
+            int baseDefense_Ranged = ParseInt(values[9], 0); // Default to 0 if invalid
+            int baseDefense_Magic = ParseInt(values[10], 0); // Default to 0 if invalid
+            
 
             // Assign sprites based on folder structure
             Sprite frontSprite = FindSprite(species.ToString(), "front.png");
@@ -85,13 +91,18 @@ public class MonsterDataImporterWindow : EditorWindow
             // Create and add the monster to the database
             SpeciesInfo monsterInfo = new SpeciesInfo
             {
+                ID = id,
                 species = species,
                 name = name,
                 type = type,
                 baseHP = baseHP,
-                baseAttack_Melee = baseAttack,
-                baseDefense_Melee = baseDefense,
                 baseSpeed = baseSpeed,
+                baseAttack_Melee = baseAttack_Melee,
+                baseDefense_Melee = baseDefense_Melee,
+                baseAttack_Ranged = baseAttack_Ranged,
+                baseDefense_Ranged = baseDefense_Ranged,
+                baseAttack_Magic = baseAttack_Magic,
+                baseDefense_Magic = baseDefense_Magic,
                 front_sprite = frontSprite,
                 back_sprite = backSprite,
                 partyicon = partyIcon

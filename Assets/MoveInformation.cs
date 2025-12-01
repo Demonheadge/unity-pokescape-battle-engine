@@ -81,6 +81,10 @@ public enum Move
     SHADOW_BURST,
     SHADOW_BLITZ,
     SHADOW_BARRAGE,
+    PECK,
+    GUTHIX_CLAWS,
+    ZAMORAK_FLAMES,
+    SARADOMIN_STRIKE,
 }
 
 public enum MoveEffect
