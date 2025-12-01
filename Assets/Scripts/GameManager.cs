@@ -4,6 +4,7 @@
 using System;
 using UnityEditor;
 using UnityEngine;
+using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine.UI;
@@ -18,31 +19,30 @@ public class GameManager : MonoBehaviour
     public GameObject partySlot4; // Reference to the Party_Slot_4 GameObject
     public GameObject partySlot5; // Reference to the Party_Slot_5 GameObject
     public GameObject partySlot6; // Reference to the Party_Slot_6 GameObject
+    public GameObject enemySlot1; // Reference to the Enemy_Slot_1 GameObject
+    public GameObject enemySlot2; // Reference to the Enemy_Slot_2 GameObject
     public MonsterDatabase monsterDatabase; // Reference to the MonsterDatabase asset
     public LevelUpDatabase levelUpDatabase; // Reference to the LevelUpDatabase asset
+    public Variables variables;
+    public UI_Controller UI_controller;
+    public GameObject BattleScene;
+    public GameObject Background;
+
+    private GameObject currentEnemy;
+    private GameObject secondEnemy;
     public GameObject enemyMonsterPrefab; // Prefab for the enemy monster
     public Transform enemySpawnPoint; // Transform where the enemy monster will spawn
-    private GameObject currentEnemy;
-    public Variables variables;
+    public BattleType currentBattleType;
+
+    public List<GameObject> spawnedEnemies = new List<GameObject>(); // Declare and initialize the list
+    
+
 
     private void Update()
     {
-        if (variables.isInAMenu == false)
-        {
-            if (Keyboard.current.enterKey.wasPressedThisFrame)
-            {
-                StartBattle();
-            }
-
-            if (Keyboard.current.backspaceKey.wasPressedThisFrame)
-            {
-                EndBattle();
-            }
-        }
+        
         
     }
-
-    
 
     public void AddMonsterToParty()
     {
@@ -51,6 +51,38 @@ public class GameManager : MonoBehaviour
             Debug.Log("Party is full!");
             return;
         }
+        
+
+        // Call SpawnMonster and get the returned SpawnedMonster object
+        SpawnedMonster newMonster = SpawnMonster();
+        playerParty.Add(newMonster);
+
+        // Update Party_Slot
+        switch (playerParty.Count)
+        {
+            case 1:
+                UpdatePartySlotUI(partySlot1, newMonster);
+                break;
+            case 2:
+                UpdatePartySlotUI(partySlot2, newMonster);
+                break;
+            case 3:
+                UpdatePartySlotUI(partySlot3, newMonster);
+                break;
+            case 4:
+                UpdatePartySlotUI(partySlot4, newMonster);
+                break;
+            case 5:
+                UpdatePartySlotUI(partySlot5, newMonster);
+                break;
+            case 6:
+                UpdatePartySlotUI(partySlot6, newMonster);
+                break;
+        }
+    }
+
+    public SpawnedMonster SpawnMonster()
+    {
 
         // Generate random experience points for the monster (you can adjust this logic)
         int randomExperience = UnityEngine.Random.Range(0, 1000000);
@@ -132,31 +164,9 @@ public class GameManager : MonoBehaviour
             current_Defense_Magic = ((2 * randomMonster.baseDefense_Magic + (def_magic_iv_total / 4)) * calculatedLevel) / 100, 
         };
 
-        SpawnedMonster newMonster = new SpawnedMonster(randomMonster, extra1Info, extra2Info, extra3Info);
-        playerParty.Add(newMonster);
-
-        // Update Party_Slot
-        switch (playerParty.Count)
-        {
-            case 1:
-                UpdatePartySlotUI(partySlot1, newMonster);
-                break;
-            case 2:
-                UpdatePartySlotUI(partySlot2, newMonster);
-                break;
-            case 3:
-                UpdatePartySlotUI(partySlot3, newMonster);
-                break;
-            case 4:
-                UpdatePartySlotUI(partySlot4, newMonster);
-                break;
-            case 5:
-                UpdatePartySlotUI(partySlot5, newMonster);
-                break;
-            case 6:
-                UpdatePartySlotUI(partySlot6, newMonster);
-                break;
-        }
+        SpawnedMonster spawnedMonster = new SpawnedMonster(randomMonster, extra1Info, extra2Info, extra3Info);
+        
+        return spawnedMonster;
     }
 
     private void UpdatePartySlotUI(GameObject slot, SpawnedMonster monster)
@@ -374,7 +384,7 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    private void StartBattle()
+    public void StartBattle()
     {
         if (playerParty.Count == 0)
         {
@@ -382,20 +392,176 @@ public class GameManager : MonoBehaviour
             return;
         }
 
-        // Randomly select an enemy monster from the MonsterDatabase
-        SpeciesInfo randomEnemyMonster = monsterDatabase.monsters[UnityEngine.Random.Range(0, monsterDatabase.monsters.Count)];
+        //Optional, battle type here. How many enemies, etc.
+        // Randomly select a battle type
+        currentBattleType = (BattleType)UnityEngine.Random.Range(0, System.Enum.GetValues(typeof(BattleType)).Length);
 
-        // Instantiate the enemy monster
-        currentEnemy = Instantiate(enemyMonsterPrefab, enemySpawnPoint.position, Quaternion.identity);
-        currentEnemy.GetComponent<MonsterDisplay>().Setup(randomEnemyMonster); // Assuming MonsterDisplay is a script to display monster info
+        // Enable the battle scene
+        variables.isInABattle = true;
+        variables.canPlayerInteract = false;
+        UI_controller.BattleUI.gameObject.SetActive(true);
+        BattleScene.gameObject.SetActive(true);
+
+        // Handle different battle types
+        switch (currentBattleType)
+        {
+            case BattleType.BattleType_1v1:
+                Start1v1Battle();
+                break;
+
+            case BattleType.BattleType_1v2:
+                Start1v2Battle();
+                break;
+
+            default:
+                Debug.LogError("Unknown battle type!");
+                break;
+        }
     }
 
-    private void EndBattle()
+
+    public void Start1v1Battle()
+    {
+        // Spawn one enemy
+        SpawnedMonster enemyMonsterData1 = SpawnMonster(); // Generate a new monster to spawn
+        UpdatePartySlotUI(enemySlot1, enemyMonsterData1);
+        currentEnemy = Instantiate(enemyMonsterPrefab, enemySpawnPoint.position, Quaternion.identity); // Instantiate the enemy prefab at the spawn point
+
+        // Assign the spawned monster's data to the enemy GameObject
+        EnemyController enemyController = currentEnemy.GetComponent<EnemyController>();
+        if (enemyController != null)
+        {
+            enemyController.InitializeEnemy(enemyMonsterData1);
+        }
+        else
+        {
+            Debug.LogError("EnemyController component is missing on the enemy prefab!");
+        }
+
+        //Play battle music.
+        //Battle transition.
+        //Set the background
+        Background.gameObject.SetActive(true); //Change the background sprite later.
+        //Wait Transtion
+        //Play Monster entry animations.
+        //Play cry Monster Sound effect.
+
+        // Create a list of enemy monsters
+        List<SpawnedMonster> enemyMonsters = new List<SpawnedMonster> { enemyMonsterData1};
+        // Start the coroutine to handle the encounter text for both enemies
+        StartCoroutine(HandleEncounterText(enemyMonsters));
+    }
+
+    public void Start1v2Battle()
+    {
+        // Clear the list of spawned enemies
+        spawnedEnemies.Clear();
+
+        // Spawn two enemies
+        SpawnedMonster enemyMonsterData1 = SpawnMonster();
+        SpawnedMonster enemyMonsterData2 = SpawnMonster();
+
+        // Spawn the first enemy
+        currentEnemy = Instantiate(enemyMonsterPrefab, enemySpawnPoint.position, Quaternion.identity);
+        EnemyController enemyController1 = currentEnemy.GetComponent<EnemyController>();
+        if (enemyController1 != null)
+        {
+            enemyController1.InitializeEnemy(enemyMonsterData1);
+            spawnedEnemies.Add(currentEnemy); // Add to the list
+        }
+        else
+        {
+            Debug.LogError("EnemyController component is missing on the enemy prefab!");
+        }
+        UpdatePartySlotUI(enemySlot1, enemyMonsterData1);
+
+        // Spawn the second enemy
+        secondEnemy = Instantiate(enemyMonsterPrefab, enemySpawnPoint.position + new Vector3(2, 0, 0), Quaternion.identity); // Adjust position for second enemy
+        EnemyController enemyController2 = secondEnemy.GetComponent<EnemyController>();
+        if (enemyController2 != null)
+        {
+            enemyController2.InitializeEnemy(enemyMonsterData2);
+            spawnedEnemies.Add(secondEnemy); // Add to the list
+        }
+        else
+        {
+            Debug.LogError("EnemyController component is missing on the second enemy prefab!");
+        }
+        UpdatePartySlotUI(enemySlot2, enemyMonsterData2);
+
+        //Play battle music.
+        //Battle transition.
+        //Set the background
+        Background.gameObject.SetActive(true); //Change the background sprite later.
+        //Wait Transtion
+        //Play Monster entry animations.
+        //Play cry Monster Sound effect.
+
+        // Create a list of enemy monsters
+        List<SpawnedMonster> enemyMonsters = new List<SpawnedMonster> { enemyMonsterData1, enemyMonsterData2 };
+        // Start the coroutine to handle the encounter text for both enemies
+        StartCoroutine(HandleEncounterText(enemyMonsters));
+    }
+
+    private IEnumerator HandleEncounterText(List<SpawnedMonster> enemyMonsters)
+    {
+        // Enable the Encounter Text
+        UI_controller.BattleUI_EncounterText.gameObject.SetActive(true);
+
+        // Update the encounter text
+        TextMeshProUGUI[] texts = UI_controller.BattleUI_EncounterText.GetComponentsInChildren<TextMeshProUGUI>();
+        foreach (var text in texts)
+        {
+            switch (text.name)
+            {
+                case "EncounterText":
+                    // Create a dynamic message based on the number of enemies
+                    string encounterMessage = "A wild ";
+                    for (int i = 0; i < enemyMonsters.Count; i++)
+                    {
+                        encounterMessage += enemyMonsters[i].speciesInfo.species;
+                        if (i < enemyMonsters.Count - 1)
+                        {
+                            encounterMessage += " and ";
+                        }
+                    }
+                    encounterMessage += " have appeared!";
+                    text.text = encounterMessage;
+                    break;
+            }
+        }
+
+        // Wait for 5 seconds
+        yield return new WaitForSeconds(2f);
+
+        // Disable the Encounter Text
+        UI_controller.BattleUI_EncounterText.gameObject.SetActive(false);
+
+        // Enable the Fight Menu for player interaction
+        UI_controller.BattleUI_FightMenu.gameObject.SetActive(true);
+
+        variables.canPlayerInteract = true;
+    }
+
+    public void EndBattle()
     {
         if (currentEnemy != null)
         {
             Destroy(currentEnemy);
             currentEnemy = null;
+            ClearPartySlotUI(enemySlot1);
+            if (secondEnemy != null)
+            {
+                Destroy(secondEnemy);
+                secondEnemy = null;
+                ClearPartySlotUI(enemySlot2);
+            }
+            
+            variables.isInABattle = false;
+            BattleScene.gameObject.SetActive(false);
+            UI_controller.BattleUI.gameObject.SetActive(false);
+            UI_controller.BattleUI_FightMenu.gameObject.SetActive(false);
+            Background.gameObject.SetActive(false);
             Debug.Log("Battle ended!");
         }
         else
@@ -428,7 +594,8 @@ public class GameManager : MonoBehaviour
             || (text.text != "Party Slot 3")
             || (text.text != "Party Slot 4")
             || (text.text != "Party Slot 5")
-            || (text.text != "Party Slot 6"))
+            || (text.text != "Party Slot 6")
+            || (text.text != "Enemy Slot 1"))
             {
                 text.text = "";
             }
