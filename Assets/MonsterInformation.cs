@@ -8,13 +8,22 @@ using UnityEngine;
 [System.Serializable]
 public class SpeciesInfo
 {
+    public int ID;
     public Species species;
     public string name;
     public MonsterType type;
+    //stats
     public int baseHP;
-    public int baseAttack;
-    public int baseDefense;
     public int baseSpeed;
+    //attack
+    public int baseAttack_Melee;
+    public int baseAttack_Ranged;
+    public int baseAttack_Magic;
+    //defense
+    public int baseDefense_Melee;
+    public int baseDefense_Ranged;
+    public int baseDefense_Magic;
+    //sprites
     public Sprite front_sprite;
     public Sprite back_sprite;
     public Sprite partyicon;
@@ -22,11 +31,6 @@ public class SpeciesInfo
 
 public class Extra_1_Monster_Info
 {
-    public int experience;
-    public int HP_IV;
-    public int Attack_IV;
-    public int Defense_IV;
-    public int Speed_IV;
     public Move move_1;
     public Move move_2;
     public Move move_3;
@@ -35,12 +39,55 @@ public class Extra_1_Monster_Info
 
 public class Extra_2_Monster_Info
 {
+    public int experience;
     public int level;
+    //stats
     public int max_HP;
     public int current_HP;
-    public int current_Attack;
-    public int current_Defense;
     public int current_Speed;
+    //attack
+    public int current_Attack_Melee;
+    public int current_Attack_Ranged;
+    public int current_Attack_Magic;
+    //defense
+    public int current_Defense_Melee;
+    public int current_Defense_Ranged;
+    public int current_Defense_Magic;
+}
+
+public class Extra_3_Monster_Info
+{
+    //Skills
+    public int skill_attack;
+    public int skill_defense;
+    public int skill_strength;
+    public int skill_magic;
+    public int skill_ranged;
+    public int skill_necromancy;
+    public int skill_prayer;
+    public int skill_summoning;
+    public int skill_hitpoints;
+    public int skill_slayer;
+    public int skill_agility;
+    public int skill_mining;
+    public int skill_smithing;
+    public int skill_fishing;
+    public int skill_woodcutting;
+    public int skill_cooking;
+    public int skill_fletching;
+    public int skill_crafting;
+    public int skill_firemaking;
+    public int skill_runecrafting;
+    public int skill_dungeoneering;
+    public int skill_sailing;
+    public int skill_herblore;
+    public int skill_farming;
+    public int skill_construction;
+    public int skill_divination;
+    public int skill_hunter;
+    public int skill_archaeology;
+    public int skill_thieving;
+    public int skill_invention;
 }
 
 public class SpawnedMonster
@@ -48,12 +95,14 @@ public class SpawnedMonster
     public SpeciesInfo speciesInfo; // Contains species-related information
     public Extra_1_Monster_Info extra1Info; // Contains individual stats and moves
     public Extra_2_Monster_Info extra2Info; // Contains calculated stats like level, HP, etc.
+    public Extra_3_Monster_Info extra3Info; // Contains IVs / Skills
 
-    public SpawnedMonster(SpeciesInfo speciesInfo, Extra_1_Monster_Info extra1Info, Extra_2_Monster_Info extra2Info)
+    public SpawnedMonster(SpeciesInfo speciesInfo, Extra_1_Monster_Info extra1Info, Extra_2_Monster_Info extra2Info, Extra_3_Monster_Info extra3Info)
     {
         this.speciesInfo = speciesInfo;
         this.extra1Info = extra1Info;
         this.extra2Info = extra2Info;
+        this.extra3Info = extra3Info;
     }
 }
 

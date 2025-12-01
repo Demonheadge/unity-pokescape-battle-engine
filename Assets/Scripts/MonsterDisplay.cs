@@ -30,8 +30,8 @@ public class MonsterDisplay : MonoBehaviour
         name_text.text = monster.name;
         type_text.text = monster.type.ToString();
         hp_text.text = "HP: " + monster.baseHP.ToString();
-        attack_text.text = "Attack: " + monster.baseAttack.ToString();
-        defense_text.text = "Defense: " + monster.baseDefense.ToString();
+        //attack_text.text = "Attack: " + monster.baseAttack.ToString();
+        //defense_text.text = "Defense: " + monster.baseDefense.ToString();
         speed_text.text = "Speed: " + monster.baseSpeed.ToString();
 
         if (monster.front_sprite != null)

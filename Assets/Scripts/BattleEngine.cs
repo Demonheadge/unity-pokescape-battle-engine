@@ -73,7 +73,7 @@ public class BattleEngine : MonoBehaviour
             return 0;
         }
 
-        int damage = move.damage + attacker.baseAttack - defender.baseDefense;
+        int damage = move.damage + attacker.baseAttack_Melee - defender.baseDefense_Melee;
         return Mathf.Max(damage, 0); // Ensure damage is not negative
     }
 
