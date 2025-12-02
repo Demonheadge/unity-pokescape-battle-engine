@@ -27,12 +27,15 @@ public class GameManager : MonoBehaviour
     public UI_Controller UI_controller;
     public GameObject BattleScene;
     public GameObject Background;
+    public BattleType currentBattleType;
 
+    public GameObject enemyMonsterPrefab; // Prefab for the enemy monster
     private GameObject currentEnemy;
     private GameObject secondEnemy;
-    public GameObject enemyMonsterPrefab; // Prefab for the enemy monster
-    public Transform enemySpawnPoint; // Transform where the enemy monster will spawn
-    public BattleType currentBattleType;
+
+    private Vector3 SpawnPoint;
+    
+    
 
     public List<GameObject> spawnedEnemies = new List<GameObject>(); // Declare and initialize the list
     
@@ -423,9 +426,10 @@ public class GameManager : MonoBehaviour
     public void Start1v1Battle()
     {
         // Spawn one enemy
+        SpawnPoint = new Vector3(2.1f, 0.9f, 0f);  //Set the spawn position.
         SpawnedMonster enemyMonsterData1 = SpawnMonster(); // Generate a new monster to spawn
         UpdatePartySlotUI(enemySlot1, enemyMonsterData1);
-        currentEnemy = Instantiate(enemyMonsterPrefab, enemySpawnPoint.position, Quaternion.identity); // Instantiate the enemy prefab at the spawn point
+        currentEnemy = Instantiate(enemyMonsterPrefab, SpawnPoint, Quaternion.identity); // Instantiate the enemy prefab at the spawn point
 
         // Assign the spawned monster's data to the enemy GameObject
         EnemyController enemyController = currentEnemy.GetComponent<EnemyController>();
@@ -462,7 +466,8 @@ public class GameManager : MonoBehaviour
         SpawnedMonster enemyMonsterData2 = SpawnMonster();
 
         // Spawn the first enemy
-        currentEnemy = Instantiate(enemyMonsterPrefab, enemySpawnPoint.position, Quaternion.identity);
+        SpawnPoint = new Vector3(2.6f, 0.7f, 0f);  //Set the spawn position.
+        currentEnemy = Instantiate(enemyMonsterPrefab, SpawnPoint, Quaternion.identity);
         EnemyController enemyController1 = currentEnemy.GetComponent<EnemyController>();
         if (enemyController1 != null)
         {
@@ -476,7 +481,8 @@ public class GameManager : MonoBehaviour
         UpdatePartySlotUI(enemySlot1, enemyMonsterData1);
 
         // Spawn the second enemy
-        secondEnemy = Instantiate(enemyMonsterPrefab, enemySpawnPoint.position + new Vector3(2, 0, 0), Quaternion.identity); // Adjust position for second enemy
+        SpawnPoint = new Vector3(1.4f, 0.9f, 0f);  //Set the spawn position.
+        secondEnemy = Instantiate(enemyMonsterPrefab, SpawnPoint, Quaternion.identity); // Adjust position for second enemy (SpawnPoint + new Vector3(2, 0, 0))
         EnemyController enemyController2 = secondEnemy.GetComponent<EnemyController>();
         if (enemyController2 != null)
         {
