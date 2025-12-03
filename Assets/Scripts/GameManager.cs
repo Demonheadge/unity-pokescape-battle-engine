@@ -28,9 +28,8 @@ public class GameManager : MonoBehaviour
     private GameObject secondEnemy;
     private Vector3 SpawnPoint;
     public List<EnemyController> spawnedEnemies = new List<EnemyController>(); // Correctly define the list to store EnemyController instances
+    public int selectedTargetIndex = -1; // Index of the currently selected target
 
-
-    
 
     private void Awake()
     {
@@ -50,10 +49,87 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    private void Update()
+    public void SetInitialTarget()
     {
-        
-        
+        if (spawnedEnemies.Count > 0)
+        {
+            selectedTargetIndex = 0; // Set the initial target to the first monster in the list
+            HighlightSelectedTarget();
+        }
+        else
+        {
+            Debug.LogWarning("No enemies available to set as the initial target.");
+        }
+    }
+
+    public void SwapTarget()
+    {
+        if (spawnedEnemies.Count > 0)
+        {
+            // Increment the selected target index
+            selectedTargetIndex++;
+            if (selectedTargetIndex >= spawnedEnemies.Count)
+            {
+                selectedTargetIndex = 0; // Wrap around to the first enemy
+            }
+
+            // Highlight the selected target
+            HighlightSelectedTarget();
+        }
+    }
+
+    public void HighlightSelectedTarget()
+    {
+        // Reset highlight for all enemies
+        foreach (var enemy in spawnedEnemies)
+        {
+            var spriteRenderer = enemy.GetComponent<SpriteRenderer>();
+            if (spriteRenderer != null)
+            {
+                spriteRenderer.color = Color.white; // Reset color
+            }
+        }
+
+        // Highlight the selected enemy
+        if (spawnedEnemies.Count > 0 && selectedTargetIndex >= 0 && selectedTargetIndex < spawnedEnemies.Count)
+        {
+            var selectedEnemy = spawnedEnemies[selectedTargetIndex];
+            var selectedSpriteRenderer = selectedEnemy.GetComponent<SpriteRenderer>();
+            if (selectedSpriteRenderer != null)
+            {
+                selectedSpriteRenderer.color = Color.yellow; // Highlight color
+            }
+
+            Debug.Log($"Selected target: {selectedEnemy.enemyData.speciesInfo.species}");
+        }
+    }
+
+    public void RemoveEnemy(EnemyController enemy)
+    {
+        if (spawnedEnemies.Contains(enemy))
+        {
+            int removedIndex = spawnedEnemies.IndexOf(enemy);
+            spawnedEnemies.Remove(enemy);
+
+            // Adjust the selected target index
+            if (removedIndex == selectedTargetIndex)
+            {
+                if (spawnedEnemies.Count > 0)
+                {
+                    selectedTargetIndex = Mathf.Clamp(removedIndex, 0, spawnedEnemies.Count - 1);
+                    HighlightSelectedTarget();
+                }
+                else
+                {
+                    selectedTargetIndex = -1; // No valid targets left
+                    Debug.Log("No more enemies left.");
+                }
+            }
+            else if (removedIndex < selectedTargetIndex)
+            {
+                selectedTargetIndex--; // Adjust index if a preceding enemy was removed
+            }
+        }
     }
 
     public void AddMonsterToParty()
@@ -559,6 +635,9 @@ public class GameManager : MonoBehaviour
 
         variables.canPlayerInteract = true;
         Debug.Log("CanInteract: " + variables.canPlayerInteract);
+
+        // Set the initial target to the first monster in the list when the battle begins
+        SetInitialTarget();
     }
 
     public void CheckIfEndBattle()

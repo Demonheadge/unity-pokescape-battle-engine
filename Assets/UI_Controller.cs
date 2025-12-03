@@ -76,6 +76,29 @@ public class UI_Controller : MonoBehaviour
                 ToggleBattleScene();
             }
         }
+
+
+        if (variables.isInABattle)
+        {
+            if (Keyboard.current.uKey.wasPressedThisFrame && gameManager.variables.canPlayerInteract)
+            {
+                gameManager.SwapTarget();
+            }
+
+            // Check if the I key is pressed to deal damage to the selected target
+            if (Keyboard.current.iKey.wasPressedThisFrame && gameManager.variables.canPlayerInteract)
+            {
+                gameManager.variables.canPlayerInteract = false;
+                Debug.Log("CanInteract: " + gameManager.variables.canPlayerInteract);
+
+                // Deal damage to the selected target
+                if (gameManager.spawnedEnemies.Count > 0)
+                {
+                    EnemyController selectedEnemy = gameManager.spawnedEnemies[gameManager.selectedTargetIndex];
+                    selectedEnemy.TakeDamage(1000);
+                }
+            }
+        }
     }
 
     public void TogglePartyMenu()

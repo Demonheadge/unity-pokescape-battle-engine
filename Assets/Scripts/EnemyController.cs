@@ -28,7 +28,6 @@ public class EnemyController : MonoBehaviour
     public float duration = 1f; // Duration of the hp bar animation
     public int TEMP_DAMAGE_VALUE = 1000;
     
-    
 
 
 
@@ -44,7 +43,6 @@ public class EnemyController : MonoBehaviour
 
     private void Start()
     {
-        // Dynamically assign the GameManager reference
         gameManager = GameManager.Instance;
         if (gameManager == null)
         {
@@ -62,18 +60,6 @@ public class EnemyController : MonoBehaviour
         }
     }
 
-    private void Update()
-    {
-        // Check if the i key is pressed
-        if (Keyboard.current.iKey.wasPressedThisFrame && gameManager.variables.canPlayerInteract)
-        {
-            gameManager.variables.canPlayerInteract = false;
-            Debug.Log("CanInteract: " + gameManager.variables.canPlayerInteract);
-            //CanInteract = false;
-            TakeDamage(TEMP_DAMAGE_VALUE); //change to move later.
-            //UpdateUI();
-        }
-    }
 
     public void InitializeEnemy(SpawnedMonster data)
     {
@@ -242,9 +228,10 @@ public class EnemyController : MonoBehaviour
         Debug.Log("CanInteract: " + gameManager.variables.canPlayerInteract);
     }
 
+
     private System.Collections.IEnumerator ShrinkAndDie()
     {
-        float shrinkDuration = 0.5f; // Duration of the shrinking animation
+        float shrinkDuration = 0.5f;
         float elapsedTime = 0f;
         Vector3 originalScale = transform.localScale;
 
@@ -253,23 +240,17 @@ public class EnemyController : MonoBehaviour
             elapsedTime += Time.deltaTime;
             float t = elapsedTime / shrinkDuration;
 
-            // Gradually shrink the enemy
             transform.localScale = Vector3.Lerp(originalScale, Vector3.zero, t);
 
             yield return null;
         }
 
-        // Ensure the enemy is completely shrunk
         transform.localScale = Vector3.zero;
 
-        // Remove the enemy from the GameManager's spawnedEnemies list
-        gameManager.spawnedEnemies.Remove(this);
+        gameManager.RemoveEnemy(this); // Notify GameManager to remove this enemy and update target
 
-        //Check to see if all enemies are dead. If they are end the battle.
-        gameManager.CheckIfEndBattle(); // Notify the GameManager to end the battle
-        
+        gameManager.CheckIfEndBattle();
 
-        // Destroy the enemy GameObject
         Destroy(gameObject);
     }
 }

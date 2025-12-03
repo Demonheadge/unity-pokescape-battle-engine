@@ -1855,13 +1855,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2115fc36f476f554d81ca4051369c9ac, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Test
-  partyMenuCanvas: {fileID: 946540725152668904}
   gameManager: {fileID: 894757453}
   variables: {fileID: 231214833}
   BattleUI: {fileID: 456895583}
   BattleUI_FightMenu: {fileID: 1170503038}
   BattleUI_BattleInfo: {fileID: 1387401144}
   BattleUI_EncounterText: {fileID: 790596333}
+  partyMenuCanvas: {fileID: 946540725152668904}
   partySlot1: {fileID: 5671935358721088774}
   partySlot2: {fileID: 4892989347067235789}
   partySlot3: {fileID: 3926195377230067478}
