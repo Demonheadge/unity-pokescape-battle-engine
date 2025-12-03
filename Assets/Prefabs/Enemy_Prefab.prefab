@@ -45,7 +45,76 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b86c40b8d3a388544b42b0526cb31c03, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyController
-  enemyInfoUI: {fileID: 5759465665020176908, guid: cdb729a6f27ad9140b66c8ef51fd482f, type: 3}
+  enemyData:
+    speciesInfo:
+      ID: 0
+      species: 0
+      name: 
+      type: 0
+      baseHP: 0
+      baseSpeed: 0
+      baseAttack_Melee: 0
+      baseAttack_Ranged: 0
+      baseAttack_Magic: 0
+      baseDefense_Melee: 0
+      baseDefense_Ranged: 0
+      baseDefense_Magic: 0
+      front_sprite: {fileID: 0}
+      back_sprite: {fileID: 0}
+      partyicon: {fileID: 0}
+    extra1Info:
+      move_1: 0
+      move_2: 0
+      move_3: 0
+      move_4: 0
+    extra2Info:
+      experience: 0
+      level: 0
+      max_HP: 0
+      current_HP: 0
+      current_Speed: 0
+      current_Attack_Melee: 0
+      current_Attack_Ranged: 0
+      current_Attack_Magic: 0
+      current_Defense_Melee: 0
+      current_Defense_Ranged: 0
+      current_Defense_Magic: 0
+    extra3Info:
+      skill_attack: 0
+      skill_defense: 0
+      skill_strength: 0
+      skill_magic: 0
+      skill_ranged: 0
+      skill_necromancy: 0
+      skill_prayer: 0
+      skill_summoning: 0
+      skill_hitpoints: 0
+      skill_slayer: 0
+      skill_agility: 0
+      skill_mining: 0
+      skill_smithing: 0
+      skill_fishing: 0
+      skill_woodcutting: 0
+      skill_cooking: 0
+      skill_fletching: 0
+      skill_crafting: 0
+      skill_firemaking: 0
+      skill_runecrafting: 0
+      skill_dungeoneering: 0
+      skill_sailing: 0
+      skill_herblore: 0
+      skill_farming: 0
+      skill_construction: 0
+      skill_divination: 0
+      skill_hunter: 0
+      skill_archaeology: 0
+      skill_thieving: 0
+      skill_invention: 0
+  infoBarPrefab: {fileID: 5283800954411001063, guid: 138c3ca9c3bb07c42824a1b449bad14e, type: 3}
+  TEMP_DAMAGE_VALUE: 1000
+  duration: 1
+  CanInteract: 1
+  gameManager: {fileID: 0}
 --- !u!212 &-1205773933629824499
 SpriteRenderer:
   m_ObjectHideFlags: 0

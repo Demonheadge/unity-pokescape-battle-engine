@@ -12,34 +12,43 @@ using UnityEngine.InputSystem;
 
 public class GameManager : MonoBehaviour
 {
+    public static GameManager Instance { get; private set; }
+    public MonsterDatabase monsterDatabase; // Reference to MonsterDatabase
+    public MoveDatabase moveDatabase;       // Reference to MoveDatabase
+    public LevelUpDatabase levelUpDatabase; // Reference to LevelUpDatabase
     public List<SpawnedMonster> playerParty = new List<SpawnedMonster>();
-    public GameObject partySlot1; // Reference to the Party_Slot_1 GameObject
-    public GameObject partySlot2; // Reference to the Party_Slot_2 GameObject
-    public GameObject partySlot3; // Reference to the Party_Slot_3 GameObject
-    public GameObject partySlot4; // Reference to the Party_Slot_4 GameObject
-    public GameObject partySlot5; // Reference to the Party_Slot_5 GameObject
-    public GameObject partySlot6; // Reference to the Party_Slot_6 GameObject
-    public GameObject enemySlot1; // Reference to the Enemy_Slot_1 GameObject
-    public GameObject enemySlot2; // Reference to the Enemy_Slot_2 GameObject
-    public MonsterDatabase monsterDatabase; // Reference to the MonsterDatabase asset
-    public LevelUpDatabase levelUpDatabase; // Reference to the LevelUpDatabase asset
+    
     public Variables variables;
     public UI_Controller UI_controller;
     public GameObject BattleScene;
     public GameObject Background;
     public BattleType currentBattleType;
-
     public GameObject enemyMonsterPrefab; // Prefab for the enemy monster
     private GameObject currentEnemy;
     private GameObject secondEnemy;
-
     private Vector3 SpawnPoint;
-    
+    public List<EnemyController> spawnedEnemies = new List<EnemyController>(); // Correctly define the list to store EnemyController instances
+
+
     
 
-    public List<GameObject> spawnedEnemies = new List<GameObject>(); // Declare and initialize the list
-    
-
+    private void Awake()
+    {
+        if (Instance == null)
+        {
+            Instance = this;
+            DontDestroyOnLoad(gameObject); // Ensure GameManager persists across scenes
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
+        // Ensure all references are assigned
+        if (monsterDatabase == null || moveDatabase == null || levelUpDatabase == null)
+        {
+            Debug.LogError("One or more database references are not assigned in GameManager!");
+        }
+    }
 
     private void Update()
     {
@@ -64,22 +73,22 @@ public class GameManager : MonoBehaviour
         switch (playerParty.Count)
         {
             case 1:
-                UpdatePartySlotUI(partySlot1, newMonster);
+                UpdatePartySlotUI(UI_controller.partySlot1, newMonster);
                 break;
             case 2:
-                UpdatePartySlotUI(partySlot2, newMonster);
+                UpdatePartySlotUI(UI_controller.partySlot2, newMonster);
                 break;
             case 3:
-                UpdatePartySlotUI(partySlot3, newMonster);
+                UpdatePartySlotUI(UI_controller.partySlot3, newMonster);
                 break;
             case 4:
-                UpdatePartySlotUI(partySlot4, newMonster);
+                UpdatePartySlotUI(UI_controller.partySlot4, newMonster);
                 break;
             case 5:
-                UpdatePartySlotUI(partySlot5, newMonster);
+                UpdatePartySlotUI(UI_controller.partySlot5, newMonster);
                 break;
             case 6:
-                UpdatePartySlotUI(partySlot6, newMonster);
+                UpdatePartySlotUI(UI_controller.partySlot6, newMonster);
                 break;
         }
     }
@@ -402,6 +411,8 @@ public class GameManager : MonoBehaviour
         // Enable the battle scene
         variables.isInABattle = true;
         variables.canPlayerInteract = false;
+        Debug.Log("CanInteract: " + variables.canPlayerInteract);
+        Debug.Log("InABattle: " + variables.isInABattle);
         UI_controller.BattleUI.gameObject.SetActive(true);
         BattleScene.gameObject.SetActive(true);
 
@@ -428,7 +439,7 @@ public class GameManager : MonoBehaviour
         // Spawn one enemy
         SpawnPoint = new Vector3(2.1f, 0.9f, 0f);  //Set the spawn position.
         SpawnedMonster enemyMonsterData1 = SpawnMonster(); // Generate a new monster to spawn
-        UpdatePartySlotUI(enemySlot1, enemyMonsterData1);
+        UpdatePartySlotUI(UI_controller.enemySlot1, enemyMonsterData1);
         currentEnemy = Instantiate(enemyMonsterPrefab, SpawnPoint, Quaternion.identity); // Instantiate the enemy prefab at the spawn point
 
         // Assign the spawned monster's data to the enemy GameObject
@@ -472,13 +483,13 @@ public class GameManager : MonoBehaviour
         if (enemyController1 != null)
         {
             enemyController1.InitializeEnemy(enemyMonsterData1);
-            spawnedEnemies.Add(currentEnemy); // Add to the list
+            //spawnedEnemies.Add(currentEnemy); // Add to the list
         }
         else
         {
             Debug.LogError("EnemyController component is missing on the enemy prefab!");
         }
-        UpdatePartySlotUI(enemySlot1, enemyMonsterData1);
+        UpdatePartySlotUI(UI_controller.enemySlot1, enemyMonsterData1);
 
         // Spawn the second enemy
         SpawnPoint = new Vector3(1.4f, 0.9f, 0f);  //Set the spawn position.
@@ -487,13 +498,13 @@ public class GameManager : MonoBehaviour
         if (enemyController2 != null)
         {
             enemyController2.InitializeEnemy(enemyMonsterData2);
-            spawnedEnemies.Add(secondEnemy); // Add to the list
+            //spawnedEnemies.Add(secondEnemy); // Add to the list
         }
         else
         {
             Debug.LogError("EnemyController component is missing on the second enemy prefab!");
         }
-        UpdatePartySlotUI(enemySlot2, enemyMonsterData2);
+        UpdatePartySlotUI(UI_controller.enemySlot2, enemyMonsterData2);
 
         //Play battle music.
         //Battle transition.
@@ -547,33 +558,45 @@ public class GameManager : MonoBehaviour
         UI_controller.BattleUI_FightMenu.gameObject.SetActive(true);
 
         variables.canPlayerInteract = true;
+        Debug.Log("CanInteract: " + variables.canPlayerInteract);
     }
 
-    public void EndBattle()
+    public void CheckIfEndBattle()
     {
-        if (currentEnemy != null)
+        if (spawnedEnemies.Count == 0)  //WIN
         {
-            Destroy(currentEnemy);
-            currentEnemy = null;
-            ClearPartySlotUI(enemySlot1);
+            if (currentEnemy != null)
+            {
+                Destroy(currentEnemy);
+                currentEnemy = null;
+                ClearPartySlotUI(UI_controller.enemySlot1);
+            }
             if (secondEnemy != null)
             {
                 Destroy(secondEnemy);
                 secondEnemy = null;
-                ClearPartySlotUI(enemySlot2);
+                ClearPartySlotUI(UI_controller.enemySlot2);
             }
-            
             variables.isInABattle = false;
+            Debug.Log("InABattle: " + variables.isInABattle);
             BattleScene.gameObject.SetActive(false);
             UI_controller.BattleUI.gameObject.SetActive(false);
             UI_controller.BattleUI_FightMenu.gameObject.SetActive(false);
             Background.gameObject.SetActive(false);
-            Debug.Log("Battle ended!");
+            Debug.Log("Battle ended! You Won!");
         }
-        else
-        {
-            Debug.Log("No battle to end!");
-        }
+        //else if (spawnedEnemies.Count > 0 && playerParty.Count == 0)  //LOSE        //Need to adjust playerpartycount later for checking if hp is 0.
+        //{
+        //    variables.isInABattle = false;
+        //    Debug.Log("InABattle: " + variables.isInABattle);
+        //    BattleScene.gameObject.SetActive(false);
+        //    UI_controller.BattleUI.gameObject.SetActive(false);
+        //    UI_controller.BattleUI_FightMenu.gameObject.SetActive(false);
+        //    Background.gameObject.SetActive(false);
+        //    Debug.Log("Battle ended! You Lost!");
+        //}
+        //Debug.Log("The Battle continues!");
+
     }
 
     public void ClearPlayerParty()
@@ -581,12 +604,12 @@ public class GameManager : MonoBehaviour
         playerParty.Clear();
         Debug.Log("Player's party cleared!");
         // Clear Party_Slot UI
-        ClearPartySlotUI(partySlot1);
-        ClearPartySlotUI(partySlot2);
-        ClearPartySlotUI(partySlot3);
-        ClearPartySlotUI(partySlot4);
-        ClearPartySlotUI(partySlot5);
-        ClearPartySlotUI(partySlot6);
+        ClearPartySlotUI(UI_controller.partySlot1);
+        ClearPartySlotUI(UI_controller.partySlot2);
+        ClearPartySlotUI(UI_controller.partySlot3);
+        ClearPartySlotUI(UI_controller.partySlot4);
+        ClearPartySlotUI(UI_controller.partySlot5);
+        ClearPartySlotUI(UI_controller.partySlot6);
     }
 
     private void ClearPartySlotUI(GameObject slot)

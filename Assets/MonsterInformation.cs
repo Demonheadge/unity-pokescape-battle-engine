@@ -29,6 +29,7 @@ public class SpeciesInfo
     public Sprite partyicon;
 }
 
+[System.Serializable]
 public class Extra_1_Monster_Info
 {
     public Move move_1;
@@ -37,6 +38,7 @@ public class Extra_1_Monster_Info
     public Move move_4;
 }
 
+[System.Serializable]
 public class Extra_2_Monster_Info
 {
     public int experience;
@@ -55,6 +57,7 @@ public class Extra_2_Monster_Info
     public int current_Defense_Magic;
 }
 
+[System.Serializable]
 public class Extra_3_Monster_Info
 {
     //Skills
@@ -90,13 +93,14 @@ public class Extra_3_Monster_Info
     public int skill_invention;
 }
 
+[System.Serializable]
 public class SpawnedMonster
 {
     public SpeciesInfo speciesInfo; // Contains species-related information
     public Extra_1_Monster_Info extra1Info; // Contains individual stats and moves
     public Extra_2_Monster_Info extra2Info; // Contains calculated stats like level, HP, etc.
     public Extra_3_Monster_Info extra3Info; // Contains IVs / Skills
-
+    
     public SpawnedMonster(SpeciesInfo speciesInfo, Extra_1_Monster_Info extra1Info, Extra_2_Monster_Info extra2Info, Extra_3_Monster_Info extra3Info)
     {
         this.speciesInfo = speciesInfo;
@@ -128,7 +132,7 @@ public enum MonsterType
 public enum Species
 {
     NONE,
-        Guthling,
+    Guthling,
     Guthbird,
     Guthraptor,
     Zamling,

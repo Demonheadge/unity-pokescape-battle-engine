@@ -59,7 +59,7 @@ MonoBehaviour:
     back_sprite: {fileID: -4571828015118065507, guid: 1b89007b054a66e4ba8489c51067b6ea, type: 3}
     partyicon: {fileID: 6934086728263231946, guid: 627c15ee3241df94891504f3973c9173, type: 3}
   - ID: 4
-    species: 4
+    species: 39
     name: Zamling
     type: 0
     baseHP: 500
@@ -137,7 +137,7 @@ MonoBehaviour:
     species: 9
     name: Saraowl
     type: 0
-    baseHP: 0
+    baseHP: 500
     baseSpeed: 0
     baseAttack_Melee: 0
     baseAttack_Ranged: 0
@@ -152,7 +152,7 @@ MonoBehaviour:
     species: 10
     name: Chick
     type: 0
-    baseHP: 0
+    baseHP: 500
     baseSpeed: 0
     baseAttack_Melee: 0
     baseAttack_Ranged: 0
@@ -167,7 +167,7 @@ MonoBehaviour:
     species: 11
     name: Chicken Normal Form
     type: 0
-    baseHP: 0
+    baseHP: 500
     baseSpeed: 0
     baseAttack_Melee: 0
     baseAttack_Ranged: 0
@@ -182,7 +182,7 @@ MonoBehaviour:
     species: 12
     name: Dreadfowl
     type: 0
-    baseHP: 0
+    baseHP: 1000
     baseSpeed: 0
     baseAttack_Melee: 0
     baseAttack_Ranged: 0
@@ -197,7 +197,7 @@ MonoBehaviour:
     species: 13
     name: Chicken Varrock Form
     type: 0
-    baseHP: 0
+    baseHP: 100
     baseSpeed: 0
     baseAttack_Melee: 0
     baseAttack_Ranged: 0
@@ -212,7 +212,7 @@ MonoBehaviour:
     species: 14
     name: Chicken Diving Form
     type: 0
-    baseHP: 0
+    baseHP: 222
     baseSpeed: 0
     baseAttack_Melee: 0
     baseAttack_Ranged: 0
@@ -227,7 +227,7 @@ MonoBehaviour:
     species: 15
     name: Chicken Karamja Form
     type: 0
-    baseHP: 0
+    baseHP: 777
     baseSpeed: 0
     baseAttack_Melee: 0
     baseAttack_Ranged: 0
@@ -242,7 +242,7 @@ MonoBehaviour:
     species: 16
     name: Chicken Death Form
     type: 0
-    baseHP: 0
+    baseHP: 666
     baseSpeed: 0
     baseAttack_Melee: 0
     baseAttack_Ranged: 0
@@ -257,7 +257,7 @@ MonoBehaviour:
     species: 17
     name: Chicken Bandosian Form
     type: 0
-    baseHP: 0
+    baseHP: 9999
     baseSpeed: 0
     baseAttack_Melee: 0
     baseAttack_Ranged: 0

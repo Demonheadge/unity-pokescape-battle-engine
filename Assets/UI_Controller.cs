@@ -2,46 +2,61 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using System.Collections.Generic;
 
+
+
 public class UI_Controller : MonoBehaviour
 {
-    public GameObject PartyUI; // Reference to the Canvas component
+    
+    public GameManager gameManager; // Reference to the GameManager
+    public Variables variables;
+
     public GameObject BattleUI;
     public GameObject BattleUI_FightMenu;
     public GameObject BattleUI_BattleInfo;
-    public GameObject BattleUI_EncounterText; // Start of battle messages.
-    public GameManager gameManager;
-    public Variables variables;
-    public BattleType currentBattleType;
+    public GameObject BattleUI_EncounterText;
+    public GameObject partyMenuCanvas; // Instance of the PartyMenu_UI Canvas
+    public GameObject partySlot1; // Reference to the Party_Slot_1 GameObject
+    public GameObject partySlot2; // Reference to the Party_Slot_2 GameObject
+    public GameObject partySlot3; // Reference to the Party_Slot_3 GameObject
+    public GameObject partySlot4; // Reference to the Party_Slot_4 GameObject
+    public GameObject partySlot5; // Reference to the Party_Slot_5 GameObject
+    public GameObject partySlot6; // Reference to the Party_Slot_6 GameObject
+    public GameObject enemySlot1; // Reference to the Enemy_Slot_1 GameObject
+    public GameObject enemySlot2; // Reference to the Enemy_Slot_2 GameObject
 
-    public List<GameObject> spawnedEnemies = new List<GameObject>();
+
     
-    
+
     void Start()
     {
         variables.canPlayerInteract = true;
-    }
+        Debug.Log("CanInteract: " + variables.canPlayerInteract);
 
+        if (partyMenuCanvas != null)
+        {
+            partyMenuCanvas.SetActive(false);
+        }
+        else
+        {
+            Debug.LogError("PartyMenuCanvas is not assigned!");
+        }
+    }
 
     void Update()
     {
         if (canYouOpenAMenu()) {   //Checks to see if you can open a menu.
             if (Keyboard.current.escapeKey.wasPressedThisFrame)
             {
-                // Use PartyUI.gameObject to access the GameObject
-                if (PartyUI.gameObject.activeSelf) // Check if the GameObject is active
+                if (partyMenuCanvas.activeSelf) // Check if the GameObject is active
                 {
-                    PartyUI.gameObject.SetActive(false); // Disable the GameObject
-                    variables.isInAMenu = false;
-                    Debug.Log("Closed the Party Menu.");
+                    TogglePartyMenu();
                 }
                 else
                 {
-                    PartyUI.gameObject.SetActive(true); // Enable the GameObject
-                    variables.isInAMenu = true;
-                    Debug.Log("Opened the Party Menu.");
+                    TogglePartyMenu();
                 }
             }
-            if (PartyUI.gameObject.activeSelf) // Check if the GameObject is active
+            if (partyMenuCanvas.activeSelf) // Check if the GameObject is active
             {
                 if (Keyboard.current.aKey.wasPressedThisFrame)
                 {
@@ -53,62 +68,54 @@ public class UI_Controller : MonoBehaviour
                 }
             }
         }
-
-
-    //Battle scene
-        if (!variables.isInAMenu)
+        //BattleScene
+        if (Keyboard.current.enterKey.wasPressedThisFrame)
         {
-            //if you are not in a battle. and can interact.
-            if ((!variables.isInABattle)
-            && variables.canPlayerInteract) 
+            if (!variables.isInAMenu)
             {
-                //Start the battle.
-                if (Keyboard.current.enterKey.wasPressedThisFrame)
-                {
-                    gameManager.StartBattle();
-                }
+                ToggleBattleScene();
             }
+        }
+    }
 
-            //if you are in a battle. and can interact.
-            if ((variables.isInABattle)
-            && variables.canPlayerInteract)
+    public void TogglePartyMenu()
+    {
+        if (partyMenuCanvas != null)
+        {
+            if (partyMenuCanvas.activeSelf)
             {
-                //End the battle.
-                if (Keyboard.current.backspaceKey.wasPressedThisFrame)
-                {
-                    gameManager.EndBattle();
-                }
-                //If you are in a battle, press i to open/close battle information.
-                if (Keyboard.current.iKey.wasPressedThisFrame)
-                {
-                    if (BattleUI_BattleInfo.gameObject.activeSelf) 
-                    {
-                        // Disable all enemy info slots dynamically based on the number of spawned enemies
-                        foreach (var enemy in spawnedEnemies)
-                        {
-                            EnemyController enemyController = enemy.GetComponent<EnemyController>();
-                            if (enemyController != null && enemyController.enemyInfoUI != null)
-                            {
-                                enemyController.enemyInfoUI.gameObject.SetActive(false);
-                            }
-                        }
-                        Debug.Log("Closed Battle Information.");
-                    }
-                    else
-                    {
-                        // Enable all enemy info slots dynamically based on the number of spawned enemies
-                        foreach (var enemy in spawnedEnemies)
-                        {
-                            EnemyController enemyController = enemy.GetComponent<EnemyController>();
-                            if (enemyController != null && enemyController.enemyInfoUI != null)
-                            {
-                                enemyController.enemyInfoUI.gameObject.SetActive(true);
-                            }
-                        }
-                        Debug.Log("Opened Battle Information.");
-                    }
-                }
+                partyMenuCanvas.SetActive(false);
+                variables.isInAMenu = false;
+                Debug.Log("Closed the Party Menu.");
             }
+            else
+            {
+                partyMenuCanvas.SetActive(true);
+                variables.isInAMenu = true;
+                Debug.Log("Opened the Party Menu.");
+            }
+        }
+        else
+        {
+            Debug.LogError("PartyMenu instance is null!");
+        }
+    }
+
+    public void ToggleBattleScene()
+    {
+    //Battle scene
+        //if you are not in a battle. and can interact.
+        if ((!variables.isInABattle)
+        && variables.canPlayerInteract) 
+        {
+            gameManager.StartBattle();
+        }
+        //if you are in a battle. and can interact.
+        if ((variables.isInABattle)
+        && variables.canPlayerInteract)
+        {
+            gameManager.spawnedEnemies.Clear();
+            gameManager.CheckIfEndBattle();
         }
     }
 
@@ -123,4 +130,8 @@ public class UI_Controller : MonoBehaviour
         }
         return true;
     }
+
+    
+
+
 }
