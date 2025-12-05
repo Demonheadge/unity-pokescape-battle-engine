@@ -27,6 +27,7 @@ public class SpeciesInfo
     public Sprite front_sprite;
     public Sprite back_sprite;
     public Sprite partyicon;
+    //list of all moves the moster can learn in its entirety.
 }
 
 [System.Serializable]
@@ -36,6 +37,7 @@ public class Extra_1_Monster_Info
     public Move move_2;
     public Move move_3;
     public Move move_4;
+    //List of all moves monster knows by x level.
 }
 
 [System.Serializable]

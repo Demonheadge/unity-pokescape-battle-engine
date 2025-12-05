@@ -11284,7 +11284,10 @@ MonoBehaviour:
   Background: {fileID: 1849205923}
   currentBattleType: 0
   enemyMonsterPrefab: {fileID: 8320214355427982697, guid: 705eccd117773e143aa3043229317006, type: 3}
+  playerMonsterPrefab: {fileID: 8320214355427982697, guid: e3d42f1291334d045815fdd14d127f17, type: 3}
   spawnedEnemies: []
+  selectedTargetIndex: -1
+  playerPartySize: 6
 --- !u!4 &894757454
 Transform:
   m_ObjectHideFlags: 0

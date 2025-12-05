@@ -1,4 +1,4 @@
-// 3/12/2025 AI-Tag
+// 4/12/2025 AI-Tag
 // This was created with the help of Assistant, a Unity Artificial Intelligence product.
 
 // 3/12/2025 AI-Tag
@@ -7,15 +7,14 @@
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro; // Import TextMeshPro namespace
-using UnityEngine.InputSystem;
 using System.Collections.Generic;
 
-public class EnemyController : MonoBehaviour
+public class PlayerMonsterController : MonoBehaviour
 {
     public GameManager gameManager; // Reference to the GameManager
 
     [SerializeField]
-    public SpawnedMonster enemyData; // Holds the enemy's data and makes it visible in the Inspector
+    public SpawnedMonster monsterData; // Holds the monster's data and makes it visible in the Inspector
 
     public GameObject infoBarPrefab; // Reference to the INFO_BAR prefab
     private GameObject infoBarInstance; // Instance of the INFO_BAR prefab
@@ -26,17 +25,14 @@ public class EnemyController : MonoBehaviour
     private SpriteRenderer spriteRenderer; // Reference to the SpriteRenderer component
     private static List<GameObject> activeInfoBars = new List<GameObject>(); // List to track active HP bars
     public float duration = 1f; // Duration of the hp bar animation
-    
-
-
 
     private void Awake()
     {
-        // Get the SpriteRenderer component from the enemy GameObject
+        // Get the SpriteRenderer component from the monster GameObject
         spriteRenderer = GetComponent<SpriteRenderer>();
         if (spriteRenderer == null)
         {
-            Debug.LogError("SpriteRenderer component is missing on the enemy prefab!");
+            Debug.LogError("SpriteRenderer component is missing on the monster prefab!");
         }
     }
 
@@ -48,38 +44,36 @@ public class EnemyController : MonoBehaviour
             Debug.LogError("GameManager instance not found in the scene!");
         }
 
-        if (enemyData != null)
+        if (monsterData != null)
         {
-            InitializeEnemy(enemyData);
-            gameManager.spawnedEnemies.Add(this);
+            InitializeMonster(monsterData);
         }
         else
         {
-            Debug.LogError("Enemy data is not assigned!");
+            Debug.LogError("Monster data is not assigned!");
         }
     }
 
-
-    public void InitializeEnemy(SpawnedMonster data)
+    public void InitializeMonster(SpawnedMonster data)
     {
-        enemyData = data;
+        monsterData = data;
 
-        // Set the sprite of the enemy based on the SpawnedMonster data
-        if (spriteRenderer != null && enemyData.speciesInfo.front_sprite != null)
+        // Set the sprite of the monster based on the SpawnedMonster data
+        if (spriteRenderer != null && monsterData.speciesInfo.front_sprite != null)
         {
-            spriteRenderer.sprite = enemyData.speciesInfo.front_sprite;
+            spriteRenderer.sprite = monsterData.speciesInfo.front_sprite;
         }
         else
         {
-            Debug.LogError("Failed to set enemy sprite. Ensure the SpawnedMonster has a valid sprite.");
+            Debug.LogError("Failed to set monster sprite. Ensure the SpawnedMonster has a valid sprite.");
         }
 
         // Ensure only one INFO_BAR prefab is instantiated
         if (infoBarInstance == null)
         {
-            // Instantiate the INFO_BAR prefab and set it as a child of the enemy
+            // Instantiate the INFO_BAR prefab and set it as a child of the monster
             infoBarInstance = Instantiate(infoBarPrefab, transform);
-            infoBarInstance.transform.localPosition = new Vector3(0, 0.8f, 0); // Adjust position above the enemy
+            infoBarInstance.transform.localPosition = new Vector3(0, 0.8f, 0); // Adjust position above the monster
 
             // Check for collisions with other HP bars and adjust position
             AdjustInfoBarPosition(infoBarInstance);
@@ -132,13 +126,13 @@ public class EnemyController : MonoBehaviour
 
     private void InitializeUI()
     {
-        if (enemyData != null)
+        if (monsterData != null)
         {
             UpdateUI();
         }
         else
         {
-            Debug.LogWarning("No enemy data available to initialize UI.");
+            Debug.LogWarning("No monster data available to initialize UI.");
         }
     }
 
@@ -147,42 +141,40 @@ public class EnemyController : MonoBehaviour
         healthBar.fillRect.GetComponent<Image>().color = Color.Lerp(Color.red, Color.green, currentHealthPercentage);
     }
 
-
     private void UpdateUI()
     {
-        if (enemyData != null)
+        if (monsterData != null)
         {
             // Set the name text using TextMeshPro
-            nameText.text = enemyData.speciesInfo.species.ToString();
+            nameText.text = monsterData.speciesInfo.species.ToString();
             // Update level text
-            levelText.text = $"{enemyData.extra2Info.level}";
+            levelText.text = $"{monsterData.extra2Info.level}";
             // Initialize health bar
-            healthBar.maxValue = enemyData.extra2Info.max_HP;
-            healthBar.value = enemyData.extra2Info.current_HP;
+            healthBar.maxValue = monsterData.extra2Info.max_HP;
+            healthBar.value = monsterData.extra2Info.current_HP;
             // Update HP text
-            current_hp.text = $"{enemyData.extra2Info.current_HP}/{enemyData.extra2Info.max_HP}";
+            current_hp.text = $"{monsterData.extra2Info.current_HP}/{monsterData.extra2Info.max_HP}";
             // Update health bar color
-            UpdateHealthBarColor((float)enemyData.extra2Info.current_HP / enemyData.extra2Info.max_HP);
-            //Debug.Log("INFO BAR UI - Updated.");
+            UpdateHealthBarColor((float)monsterData.extra2Info.current_HP / monsterData.extra2Info.max_HP);
         }
         else
         {
-            Debug.LogWarning("No enemy data available to update UI.");
+            Debug.LogWarning("No monster data available to update UI.");
         }
     }
 
-    public void TakeDamage(int damage) //change to select a target.
+    public void TakeDamage(int damage)
     {
-        if (enemyData != null)
+        if (monsterData != null)
         {
-            int previousHP = enemyData.extra2Info.current_HP;
-            enemyData.extra2Info.current_HP -= damage;
-            enemyData.extra2Info.current_HP = Mathf.Clamp(enemyData.extra2Info.current_HP, 0, enemyData.extra2Info.max_HP);
+            int previousHP = monsterData.extra2Info.current_HP;
+            monsterData.extra2Info.current_HP -= damage;
+            monsterData.extra2Info.current_HP = Mathf.Clamp(monsterData.extra2Info.current_HP, 0, monsterData.extra2Info.max_HP);
 
             // Start coroutine to animate health bar and text
-            StartCoroutine(AnimateHealthBarAndText(previousHP, enemyData.extra2Info.current_HP));
+            StartCoroutine(AnimateHealthBarAndText(previousHP, monsterData.extra2Info.current_HP));
 
-            Debug.Log(enemyData.speciesInfo.species.ToString() + " took " + damage + " damage.");
+            Debug.Log(monsterData.speciesInfo.species.ToString() + " took " + damage + " damage.");
         }
     }
 
@@ -202,10 +194,10 @@ public class EnemyController : MonoBehaviour
 
             // Update HP text value
             int currentHPValue = Mathf.RoundToInt(Mathf.Lerp(startValue, targetValue, t));
-            current_hp.text = $"{currentHPValue}/{enemyData.extra2Info.max_HP}";
+            current_hp.text = $"{currentHPValue}/{monsterData.extra2Info.max_HP}";
 
             // Update health bar color gradually
-            float currentHealthPercentage = Mathf.Lerp((float)startValue / enemyData.extra2Info.max_HP, (float)targetValue / enemyData.extra2Info.max_HP, t);
+            float currentHealthPercentage = Mathf.Lerp((float)startValue / monsterData.extra2Info.max_HP, (float)targetValue / monsterData.extra2Info.max_HP, t);
             UpdateHealthBarColor(currentHealthPercentage);
 
             yield return null;
@@ -213,20 +205,19 @@ public class EnemyController : MonoBehaviour
 
         // Ensure the final values are set
         healthBar.value = targetValue;
-        current_hp.text = $"{targetHP}/{enemyData.extra2Info.max_HP}";
-        UpdateHealthBarColor((float)targetHP / enemyData.extra2Info.max_HP);
+        current_hp.text = $"{targetHP}/{monsterData.extra2Info.max_HP}";
+        UpdateHealthBarColor((float)targetHP / monsterData.extra2Info.max_HP);
         UpdateUI(); // Update the UI after the animation is complete
 
-        // Check if the enemy's HP is 0 and call Die()
+        // Check if the monster's HP is 0 and call Die()
         if (targetHP <= 0)
         {
             StartCoroutine(ShrinkAndDie());
-            Debug.Log(enemyData.speciesInfo.species.ToString() + " fainted!");
+            Debug.Log(monsterData.speciesInfo.species.ToString() + " fainted!");
         }
         gameManager.variables.canPlayerInteract = true;
         Debug.Log("CanInteract: " + gameManager.variables.canPlayerInteract);
     }
-
 
     private System.Collections.IEnumerator ShrinkAndDie()
     {
@@ -246,7 +237,7 @@ public class EnemyController : MonoBehaviour
 
         transform.localScale = Vector3.zero;
 
-        gameManager.RemoveEnemy(this); // Notify GameManager to remove this enemy and update target
+        //gameManager.RemoveEnemy(this); // Notify GameManager to remove this monster and update target
 
         gameManager.CheckIfEndBattle();
 

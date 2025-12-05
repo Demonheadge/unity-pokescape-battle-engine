@@ -658,7 +658,13 @@ PlayerSettings:
   XboxOneOverrideIdentityName: 
   XboxOneOverrideIdentityPublisher: 
   vrEditorSettings: {}
-  cloudServicesEnabled: {}
+  cloudServicesEnabled:
+    Build: 0
+    Game Performance: 0
+    Legacy Analytics: 0
+    Purchasing: 0
+    UDP: 0
+    Unity Ads: 0
   luminIcon:
     m_Name: 
     m_ModelFolderPath: 
@@ -680,10 +686,10 @@ PlayerSettings:
   captureStartupLogs: {}
   activeInputHandler: 1
   windowsGamepadBackendHint: 0
-  cloudProjectId: 20e54b8f-1779-46fe-a534-a0aab63b3819
+  cloudProjectId: 82759cee-e70b-426f-af11-89fbb6f6f5e4
   framebufferDepthMemorylessMode: 0
   qualitySettingsNames: []
-  projectName: BattleEngine
+  projectName: BattleEngine (1)
   organizationId: demonheadge
   cloudEnabled: 0
   legacyClampBlendShapeWeights: 0

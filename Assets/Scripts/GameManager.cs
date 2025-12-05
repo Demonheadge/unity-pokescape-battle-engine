@@ -13,9 +13,11 @@ using UnityEngine.InputSystem;
 public class GameManager : MonoBehaviour
 {
     public static GameManager Instance { get; private set; }
-    public MonsterDatabase monsterDatabase; // Reference to MonsterDatabase
-    public MoveDatabase moveDatabase;       // Reference to MoveDatabase
-    public LevelUpDatabase levelUpDatabase; // Reference to LevelUpDatabase
+
+    public Generate_Monster generate_Monster;
+    public TurnBasedBattleSystem TurnbasedSystem;
+    
+    public int playerPartySize = 6; //Max amount of monsters allowed in the players party.
     public List<SpawnedMonster> playerParty = new List<SpawnedMonster>();
     
     public Variables variables;
@@ -24,11 +26,15 @@ public class GameManager : MonoBehaviour
     public GameObject Background;
     public BattleType currentBattleType;
     public GameObject enemyMonsterPrefab; // Prefab for the enemy monster
+    public GameObject playerMonsterPrefab; // Prefab for the enemy monster
+    private GameObject playerMonsterInstance;
     private GameObject currentEnemy;
     private GameObject secondEnemy;
     private Vector3 SpawnPoint;
     public List<EnemyController> spawnedEnemies = new List<EnemyController>(); // Correctly define the list to store EnemyController instances
     public int selectedTargetIndex = -1; // Index of the currently selected target
+
+    
 
 
     private void Awake()
@@ -42,11 +48,7 @@ public class GameManager : MonoBehaviour
         {
             Destroy(gameObject);
         }
-        // Ensure all references are assigned
-        if (monsterDatabase == null || moveDatabase == null || levelUpDatabase == null)
-        {
-            Debug.LogError("One or more database references are not assigned in GameManager!");
-        }
+        
     }
 
     public void SetInitialTarget()
@@ -134,15 +136,13 @@ public class GameManager : MonoBehaviour
 
     public void AddMonsterToParty()
     {
-        if (playerParty.Count >= 6)
+        if (playerParty.Count >= playerPartySize)
         {
             Debug.Log("Party is full!");
             return;
         }
-        
-
         // Call SpawnMonster and get the returned SpawnedMonster object
-        SpawnedMonster newMonster = SpawnMonster();
+        SpawnedMonster newMonster = generate_Monster.SpawnMonster();
         playerParty.Add(newMonster);
 
         // Update Party_Slot
@@ -169,93 +169,6 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    public SpawnedMonster SpawnMonster()
-    {
-
-        // Generate random experience points for the monster (you can adjust this logic)
-        int randomExperience = UnityEngine.Random.Range(0, 1000000);
-        // Calculate the level based on experience
-        int calculatedLevel = CalculateLevel(randomExperience);
-        // Randomly select a monster from the MonsterDatabase
-        SpeciesInfo randomMonster = monsterDatabase.monsters[UnityEngine.Random.Range(0, monsterDatabase.monsters.Count)];
-
-        // Get usable moves based on LevelUpDatabase
-        List<Move> usableMoves = GetUsableMoves(randomMonster.species, randomMonster.ID, calculatedLevel);
-
-        // Randomly select moves from the usable moves list
-        Extra_1_Monster_Info extra1Info = new Extra_1_Monster_Info
-        {
-            move_1 = SelectRandomMove(usableMoves),
-            move_2 = SelectRandomMove(usableMoves),
-            move_3 = SelectRandomMove(usableMoves),
-            move_4 = SelectRandomMove(usableMoves)
-        };
-
-        Extra_3_Monster_Info extra3Info = new Extra_3_Monster_Info
-        {
-            //Randomises for now. (Later do some different math to decide.)
-            skill_attack = UnityEngine.Random.Range(1, 99),
-            skill_defense = UnityEngine.Random.Range(1, 99),
-            skill_strength = UnityEngine.Random.Range(1, 99),
-            skill_magic = UnityEngine.Random.Range(1, 99),
-            skill_ranged = UnityEngine.Random.Range(1, 99),
-            skill_necromancy = UnityEngine.Random.Range(1, 99),
-            skill_prayer = UnityEngine.Random.Range(1, 99),
-            skill_summoning = UnityEngine.Random.Range(1, 99),
-            skill_hitpoints = UnityEngine.Random.Range(1, 99),
-            skill_slayer = UnityEngine.Random.Range(1, 99),
-            skill_agility = UnityEngine.Random.Range(1, 99),
-            skill_mining = UnityEngine.Random.Range(1, 99),
-            skill_smithing = UnityEngine.Random.Range(1, 99),
-            skill_fishing = UnityEngine.Random.Range(1, 99),
-            skill_woodcutting = UnityEngine.Random.Range(1, 99),
-            skill_cooking = UnityEngine.Random.Range(1, 99),
-            skill_fletching = UnityEngine.Random.Range(1, 99),
-            skill_crafting = UnityEngine.Random.Range(1, 99),
-            skill_firemaking = UnityEngine.Random.Range(1, 99),
-            skill_runecrafting = UnityEngine.Random.Range(1, 99),
-            skill_dungeoneering = UnityEngine.Random.Range(1, 99),
-            skill_sailing = UnityEngine.Random.Range(1, 99),
-            skill_herblore = UnityEngine.Random.Range(1, 99),
-            skill_farming = UnityEngine.Random.Range(1, 99),
-            skill_construction = UnityEngine.Random.Range(1, 99),
-            skill_divination = UnityEngine.Random.Range(1, 99),
-            skill_hunter = UnityEngine.Random.Range(1, 99),
-            skill_archaeology = UnityEngine.Random.Range(1, 99),
-            skill_thieving = UnityEngine.Random.Range(1, 99)
-        };
-
-        //Specific IV skills that affect stats
-        int atk_melee_iv_total = extra3Info.skill_summoning; //+ extra3Info.skill_necromancy + extra3Info.skill_prayer;
-        int atk_ranged_iv_total = extra3Info.skill_summoning;
-        int atk_magic_iv_total= extra3Info.skill_summoning;
-        int def_melee_iv_total= extra3Info.skill_summoning;
-        int def_ranged_iv_total = extra3Info.skill_summoning;
-        int def_magic_iv_total = extra3Info.skill_summoning;
-
-        Extra_2_Monster_Info extra2Info = new Extra_2_Monster_Info
-        {
-            experience = randomExperience,  //Needs to Swap to randomly generate the level. Depending on the level generated determines the xp.
-            level = calculatedLevel, // Use the calculated level
-            max_HP = randomMonster.baseHP,
-            current_HP = randomMonster.baseHP,
-            current_Speed = randomMonster.baseSpeed,
-
-            //Overall = ( ( (2 × Base) + (IV_Total / 4) ) × Level) / 100 )
-            //attack
-            current_Attack_Melee = ((2 * randomMonster.baseAttack_Melee + (atk_melee_iv_total / 4)) * calculatedLevel) / 100, 
-            current_Attack_Ranged = ((2 * randomMonster.baseAttack_Ranged + (atk_ranged_iv_total / 4)) * calculatedLevel) / 100, 
-            current_Attack_Magic = ((2 * randomMonster.baseAttack_Magic + (atk_magic_iv_total / 4)) * calculatedLevel) / 100, 
-            //defense
-            current_Defense_Melee = ((2 * randomMonster.baseDefense_Melee + (def_melee_iv_total / 4)) * calculatedLevel) / 100, 
-            current_Defense_Ranged = ((2 * randomMonster.baseDefense_Ranged + (def_ranged_iv_total / 4)) * calculatedLevel) / 100,
-            current_Defense_Magic = ((2 * randomMonster.baseDefense_Magic + (def_magic_iv_total / 4)) * calculatedLevel) / 100, 
-        };
-
-        SpawnedMonster spawnedMonster = new SpawnedMonster(randomMonster, extra1Info, extra2Info, extra3Info);
-        
-        return spawnedMonster;
-    }
 
     private void UpdatePartySlotUI(GameObject slot, SpawnedMonster monster)
     {
@@ -496,11 +409,11 @@ public class GameManager : MonoBehaviour
         switch (currentBattleType)
         {
             case BattleType.BattleType_1v1:
-                Start1v1Battle();
+                Start1v1Battle();   //Wild Encounters.
                 break;
 
             case BattleType.BattleType_1v2:
-                Start1v2Battle();
+                Start1v2Battle();   //Wild Encounters.
                 break;
 
             default:
@@ -509,12 +422,45 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    private void SendOutPlayersMonster(SpawnedMonster monster)
+    {
+        SpawnPoint = new Vector3(0.1f, 0.1f, 0f);  //Set the spawn position.
+        playerMonsterInstance = Instantiate(playerMonsterPrefab, SpawnPoint, Quaternion.identity);
+        PlayerMonsterController playerMonsterController = playerMonsterInstance.GetComponent<PlayerMonsterController>();
+
+        if (playerMonsterController != null)
+        {
+            playerMonsterController.InitializeMonster(monster);
+            HandleSendOutMonsterText(monster);
+        }
+        else
+        {
+            Debug.LogError("PlayerMonsterController component is missing on the Player_Monster_Prefab!");
+        }
+    }
+
+    private void HandleSendOutMonsterText(SpawnedMonster monster)
+    {
+        Debug.Log($"Player's monster {monster.speciesInfo.species} has been sent out!");
+        UI_controller.BattleUI_EncounterText.gameObject.SetActive(true);
+        TextMeshProUGUI[] texts = UI_controller.BattleUI_EncounterText.GetComponentsInChildren<TextMeshProUGUI>();
+        foreach (var text in texts)
+        {
+            switch (text.name)
+            {
+                case "EncounterText":
+                    text.text = "I choose you " + monster.speciesInfo.species.ToString() + "!";
+                    break;
+            }
+        }
+    }
+
 
     public void Start1v1Battle()
     {
         // Spawn one enemy
         SpawnPoint = new Vector3(2.1f, 0.9f, 0f);  //Set the spawn position.
-        SpawnedMonster enemyMonsterData1 = SpawnMonster(); // Generate a new monster to spawn
+        SpawnedMonster enemyMonsterData1 = generate_Monster.SpawnMonster(); // Generate a new monster to spawn
         UpdatePartySlotUI(UI_controller.enemySlot1, enemyMonsterData1);
         currentEnemy = Instantiate(enemyMonsterPrefab, SpawnPoint, Quaternion.identity); // Instantiate the enemy prefab at the spawn point
 
@@ -549,8 +495,8 @@ public class GameManager : MonoBehaviour
         spawnedEnemies.Clear();
 
         // Spawn two enemies
-        SpawnedMonster enemyMonsterData1 = SpawnMonster();
-        SpawnedMonster enemyMonsterData2 = SpawnMonster();
+        SpawnedMonster enemyMonsterData1 = generate_Monster.SpawnMonster();
+        SpawnedMonster enemyMonsterData2 = generate_Monster.SpawnMonster();
 
         // Spawn the first enemy
         SpawnPoint = new Vector3(2.6f, 0.7f, 0f);  //Set the spawn position.
@@ -559,7 +505,6 @@ public class GameManager : MonoBehaviour
         if (enemyController1 != null)
         {
             enemyController1.InitializeEnemy(enemyMonsterData1);
-            //spawnedEnemies.Add(currentEnemy); // Add to the list
         }
         else
         {
@@ -574,34 +519,20 @@ public class GameManager : MonoBehaviour
         if (enemyController2 != null)
         {
             enemyController2.InitializeEnemy(enemyMonsterData2);
-            //spawnedEnemies.Add(secondEnemy); // Add to the list
         }
         else
         {
             Debug.LogError("EnemyController component is missing on the second enemy prefab!");
         }
         UpdatePartySlotUI(UI_controller.enemySlot2, enemyMonsterData2);
-
-        //Play battle music.
-        //Battle transition.
-        //Set the background
         Background.gameObject.SetActive(true); //Change the background sprite later.
-        //Wait Transtion
-        //Play Monster entry animations.
-        //Play cry Monster Sound effect.
-
-        // Create a list of enemy monsters
         List<SpawnedMonster> enemyMonsters = new List<SpawnedMonster> { enemyMonsterData1, enemyMonsterData2 };
-        // Start the coroutine to handle the encounter text for both enemies
         StartCoroutine(HandleEncounterText(enemyMonsters));
     }
 
     private IEnumerator HandleEncounterText(List<SpawnedMonster> enemyMonsters)
     {
-        // Enable the Encounter Text
         UI_controller.BattleUI_EncounterText.gameObject.SetActive(true);
-
-        // Update the encounter text
         TextMeshProUGUI[] texts = UI_controller.BattleUI_EncounterText.GetComponentsInChildren<TextMeshProUGUI>();
         foreach (var text in texts)
         {
@@ -623,22 +554,25 @@ public class GameManager : MonoBehaviour
                     break;
             }
         }
-
-        // Wait for 5 seconds
-        yield return new WaitForSeconds(2f);
-
-        // Disable the Encounter Text
-        UI_controller.BattleUI_EncounterText.gameObject.SetActive(false);
-
-        // Enable the Fight Menu for player interaction
-        UI_controller.BattleUI_FightMenu.gameObject.SetActive(true);
-
-        variables.canPlayerInteract = true;
-        Debug.Log("CanInteract: " + variables.canPlayerInteract);
-
-        // Set the initial target to the first monster in the list when the battle begins
-        SetInitialTarget();
+        yield return new WaitForSeconds(2f);    // Wait for x seconds.
+        UI_controller.BattleUI_EncounterText.gameObject.SetActive(false);   // Disable the Encounter Text
+        
+        if (playerParty != null && playerParty.Count > 0)   // Check if the player's party has at least one monster
+        {
+            SpawnedMonster playersMonster = playerParty[0]; // Get the first monster in the player's party
+            SendOutPlayersMonster(playersMonster);  
+            yield return new WaitForSeconds(2f);
+            UI_controller.BattleUI_EncounterText.gameObject.SetActive(false);
+            SetInitialTarget(); // Set the initial target to the first monster in the list when the battle begins
+            TurnbasedSystem.BeginTurns();
+        }
+        else
+        {
+            Debug.LogError("Player's party is empty! No monster to send out.");
+        }
     }
+
+
 
     public void CheckIfEndBattle()
     {
@@ -655,6 +589,11 @@ public class GameManager : MonoBehaviour
                 Destroy(secondEnemy);
                 secondEnemy = null;
                 ClearPartySlotUI(UI_controller.enemySlot2);
+            }
+            if (playerMonsterInstance != null)
+            {
+                Destroy(playerMonsterInstance);
+                playerMonsterInstance = null;
             }
             variables.isInABattle = false;
             Debug.Log("InABattle: " + variables.isInABattle);
@@ -721,65 +660,46 @@ public class GameManager : MonoBehaviour
 
 
 
-    private int CalculateLevel(int experience)
+    
+
+
+
+    public void SwapMonstersInParty(int index1, int index2)
     {
-        // Max level and max experience
-        const int maxLevel = 99;
-        const int maxExperience = 1000000;
-
-        // Calculate the level based on experience
-        // Using a quadratic formula for leveling progression
-        float level = Mathf.Floor(Mathf.Sqrt((float)experience / maxExperience) * maxLevel);
-
-        // Ensure the level is at least 1 and does not exceed maxLevel
-        return Mathf.Clamp((int)level, 1, maxLevel);
-    }
-
-    private List<Move> GetUsableMoves(Species species, int id, int currentLevel)
-    {
-        List<Move> usableMoves = new List<Move>();
-
-        foreach (var levelUpInfo in levelUpDatabase.levelUpData)
+        // Validate indices
+        if (index1 < 0 || index1 >= playerParty.Count || index2 < 0 || index2 >= playerParty.Count)
         {
-            // Check if the ID and species match
-            if (/*levelUpInfo.ID == id || */levelUpInfo.name == species)
-            {
-                foreach (var moveLevelPair in levelUpInfo.moves)
-                {
-                    // Check if the move is valid (not NONE and level > 0), not already in the list, and meets the level requirement
-                    if (moveLevelPair.move != Move.NONE && moveLevelPair.level > 0 && moveLevelPair.level <= currentLevel && !usableMoves.Contains(moveLevelPair.move))
-                    {
-                        usableMoves.Add(moveLevelPair.move);
-                        Debug.Log($"Added move: {moveLevelPair.move} (Level: {moveLevelPair.level}) to usable moves list.");
-                    }
-                    else if (moveLevelPair.move == Move.NONE || moveLevelPair.level == 0)
-                    {
-                        Debug.Log($"Skipped move: {moveLevelPair.move} (Level: {moveLevelPair.level}) as it is invalid.");
-                    }
-                }
-            }
+            Debug.LogError("Invalid indices for swapping monsters in the party.");
+            return;
         }
 
-        // Log the final list of usable moves
-        Debug.Log($"Usable moves for {species} (ID: {id}, Level: {currentLevel}): {string.Join(", ", usableMoves)}");
+        // Swap the monsters in the playerParty list
+        SpawnedMonster temp = playerParty[index1];
+        playerParty[index1] = playerParty[index2];
+        playerParty[index2] = temp;
 
-        return usableMoves;
+        UpdatePartyInterface();
     }
 
-    // Helper method to select a random move and remove it from the list to avoid duplicates
-    private Move SelectRandomMove(List<Move> usableMoves)
+    private void UpdatePartyInterface()
     {
-        // Check if there are any usable moves left
-        if (usableMoves.Count > 0)
+        if (UI_controller != null)
         {
-            int randomIndex = UnityEngine.Random.Range(0, usableMoves.Count);
-            Move selectedMove = usableMoves[randomIndex];
-            usableMoves.RemoveAt(randomIndex); // Remove the selected move to avoid duplicates
-            return selectedMove;
+            // Convert playerParty to List<GameObject> for compatibility
+            List<GameObject> playerPartyGameObjects = new List<GameObject>();
+            // Call the UpdatePartyUI method in UI_Controller
+            UI_controller.SendMessage("UpdatePartyUI", playerPartyGameObjects);
         }
-
-        // If no usable moves are left, return NONE
-        Debug.LogWarning("No usable moves left to select. Defaulting to Move.NONE.");
-        return Move.NONE;
+        else
+        {
+            Debug.LogError("UI_controller is not assigned.");
+        }
     }
+
+
+
+    
+
+
+
 }

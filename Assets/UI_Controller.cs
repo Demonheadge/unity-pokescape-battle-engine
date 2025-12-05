@@ -1,17 +1,17 @@
+// 5/12/2025 AI-Tag
+// This was created with the help of Assistant, a Unity Artificial Intelligence product.
+
 using UnityEngine;
 using UnityEngine.InputSystem;
 using System.Collections.Generic;
-
-
+using UnityEngine.UI;
 
 public class UI_Controller : MonoBehaviour
 {
-    
     public GameManager gameManager; // Reference to the GameManager
     public Variables variables;
 
     public GameObject BattleUI;
-    public GameObject BattleUI_FightMenu;
     public GameObject BattleUI_BattleInfo;
     public GameObject BattleUI_EncounterText;
     public GameObject partyMenuCanvas; // Instance of the PartyMenu_UI Canvas
@@ -24,8 +24,15 @@ public class UI_Controller : MonoBehaviour
     public GameObject enemySlot1; // Reference to the Enemy_Slot_1 GameObject
     public GameObject enemySlot2; // Reference to the Enemy_Slot_2 GameObject
 
+    // Fight Menu
+    public GameObject BattleUI_FightMenu;
+    public GameObject FightMenu_Move_Slot_1;
+    public GameObject FightMenu_Move_Slot_2;
+    public GameObject FightMenu_Move_Slot_3;
+    public GameObject FightMenu_Move_Slot_4;
 
-    
+    private int selectedMoveIndex = 0; // Tracks the currently selected move in the fight menu
+    private List<GameObject> fightMenuSlots;
 
     void Start()
     {
@@ -40,11 +47,21 @@ public class UI_Controller : MonoBehaviour
         {
             Debug.LogError("PartyMenuCanvas is not assigned!");
         }
+
+        // Initialize fight menu slots
+        fightMenuSlots = new List<GameObject>
+        {
+            FightMenu_Move_Slot_1,
+            FightMenu_Move_Slot_2,
+            FightMenu_Move_Slot_3,
+            FightMenu_Move_Slot_4
+        };
     }
 
     void Update()
     {
-        if (canYouOpenAMenu()) {   //Checks to see if you can open a menu.
+        if (canYouOpenAMenu())
+        {
             if (Keyboard.current.escapeKey.wasPressedThisFrame)
             {
                 if (partyMenuCanvas.activeSelf) // Check if the GameObject is active
@@ -66,9 +83,14 @@ public class UI_Controller : MonoBehaviour
                 {
                     gameManager.ClearPlayerParty();
                 }
+
+                if (Keyboard.current.oKey.wasPressedThisFrame)
+                {
+                    gameManager.SwapMonstersInParty(0, 1); // Swaps the first and second monsters in the party
+                }
             }
         }
-        //BattleScene
+        // BattleScene
         if (Keyboard.current.enterKey.wasPressedThisFrame)
         {
             if (!variables.isInAMenu)
@@ -76,7 +98,6 @@ public class UI_Controller : MonoBehaviour
                 ToggleBattleScene();
             }
         }
-
 
         if (variables.isInABattle)
         {
@@ -126,35 +147,129 @@ public class UI_Controller : MonoBehaviour
 
     public void ToggleBattleScene()
     {
-    //Battle scene
-        //if you are not in a battle. and can interact.
-        if ((!variables.isInABattle)
-        && variables.canPlayerInteract) 
+        // Battle scene
+        // If you are not in a battle and can interact
+        if ((!variables.isInABattle) && variables.canPlayerInteract)
         {
             gameManager.StartBattle();
         }
-        //if you are in a battle. and can interact.
-        if ((variables.isInABattle)
-        && variables.canPlayerInteract)
+        // If you are in a battle and can interact
+        if ((variables.isInABattle) && variables.canPlayerInteract)
         {
             gameManager.spawnedEnemies.Clear();
             gameManager.CheckIfEndBattle();
         }
     }
 
-
     public bool canYouOpenAMenu()
     {
-        //If you are in a battle you cannot open the menu.
-        if ((variables.isInABattle) 
-        || !variables.canPlayerInteract)
+        // If you are in a battle, you cannot open the menu
+        if ((variables.isInABattle) || !variables.canPlayerInteract)
         {
             return false;
         }
         return true;
     }
 
-    
+    public void UpdatePartyUI(List<GameObject> playerParty)
+    {
+        // Array of party slots
+        GameObject[] partySlots = { partySlot1, partySlot2, partySlot3, partySlot4, partySlot5, partySlot6 };
 
+        if (partySlots.Length < playerParty.Count)
+        {
+            Debug.LogError("Not enough party slots to display all monsters in the party.");
+            return;
+        }
 
+        for (int i = 0; i < partySlots.Length; i++)
+        {
+            if (i < playerParty.Count)
+            {
+                GameObject monster = playerParty[i];
+                Text slotText = partySlots[i].GetComponentInChildren<Text>();
+                Image slotImage = partySlots[i].GetComponentInChildren<Image>();
+
+                if (slotText != null)
+                {
+                    slotText.text = monster.name; // Display the monster's name
+                }
+                else
+                {
+                    Debug.LogError($"Party slot {i + 1} does not have a Text component.");
+                }
+
+                if (slotImage != null)
+                {
+                    Sprite monsterSprite = monster.GetComponent<SpriteRenderer>()?.sprite;
+                    if (monsterSprite != null)
+                    {
+                        slotImage.sprite = monsterSprite; // Display the monster's sprite
+                    }
+                    else
+                    {
+                        Debug.LogError($"Monster {monster.name} does not have a SpriteRenderer component or sprite.");
+                    }
+                }
+                else
+                {
+                    Debug.LogError($"Party slot {i + 1} does not have an Image component.");
+                }
+            }
+            else
+            {
+                // Clear unused slots
+                Text slotText = partySlots[i].GetComponentInChildren<Text>();
+                Image slotImage = partySlots[i].GetComponentInChildren<Image>();
+
+                if (slotText != null)
+                {
+                    slotText.text = "";
+                }
+
+                if (slotImage != null)
+                {
+                    slotImage.sprite = null;
+                }
+            }
+        }
+    }
+
+    // New method: NavigateFightMenu
+    public void NavigateFightMenu(int direction)
+    {
+        // Update the selected move index based on the direction (-1 for up, 1 for down)
+        selectedMoveIndex += direction;
+
+        // Ensure the index stays within bounds
+        if (selectedMoveIndex < 0)
+        {
+            selectedMoveIndex = fightMenuSlots.Count - 1;
+        }
+        else if (selectedMoveIndex >= fightMenuSlots.Count)
+        {
+            selectedMoveIndex = 0;
+        }
+
+        // Highlight the selected move slot
+        for (int i = 0; i < fightMenuSlots.Count; i++)
+        {
+            if (i == selectedMoveIndex)
+            {
+                fightMenuSlots[i].GetComponent<Image>().color = Color.yellow; // Highlight selected slot
+            }
+            else
+            {
+                fightMenuSlots[i].GetComponent<Image>().color = Color.white; // Reset color for other slots
+            }
+        }
+    }
+
+    // New method: GetSelectedMove
+    public MoveInformation GetSelectedMove()
+    {
+        // Get the MoveInformation from the currently selected move slot
+        GameObject selectedSlot = fightMenuSlots[selectedMoveIndex];
+        return selectedSlot.GetComponent<MoveSlot>().moveInfo; // Ensure MoveSlot script exists and has a moveInfo property
+    }
 }
