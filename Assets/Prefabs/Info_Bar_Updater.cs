@@ -176,7 +176,7 @@ public class Info_Bar_Updater : MonoBehaviour
         }
 
         transform.localScale = Vector3.zero;
-        gameManager.RemoveEnemy(this.GetComponent<EnemyController>()); // Notify GameManager to remove this enemy and update target
+        gameManager.RemoveEnemy(this.GetComponent<MonsterController>()); // Notify GameManager to remove this enemy and update target
         gameManager.CheckIfEndBattle();
 
         Destroy(gameObject);

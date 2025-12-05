@@ -31,7 +31,7 @@ public class GameManager : MonoBehaviour
     private GameObject currentEnemy;
     private GameObject secondEnemy;
     private Vector3 SpawnPoint;
-    public List<EnemyController> spawnedEnemies = new List<EnemyController>(); // Correctly define the list to store EnemyController instances
+    public List<MonsterController> spawnedEnemies = new List<MonsterController>(); // Correctly define the list to store MonsterController instances
     public int selectedTargetIndex = -1; // Index of the currently selected target
 
     
@@ -102,11 +102,11 @@ public class GameManager : MonoBehaviour
                 selectedSpriteRenderer.color = Color.yellow; // Highlight color
             }
 
-            Debug.Log($"Selected target: {selectedEnemy.enemyData.speciesInfo.species}");
+            Debug.Log($"Selected target: {selectedEnemy.monsterData.speciesInfo.species}");
         }
     }
 
-    public void RemoveEnemy(EnemyController enemy)
+    public void RemoveEnemy(MonsterController enemy)
     {
         if (spawnedEnemies.Contains(enemy))
         {
@@ -425,17 +425,18 @@ public class GameManager : MonoBehaviour
     private void SendOutPlayersMonster(SpawnedMonster monster)
     {
         SpawnPoint = new Vector3(0.1f, 0.1f, 0f);  //Set the spawn position.
-        playerMonsterInstance = Instantiate(playerMonsterPrefab, SpawnPoint, Quaternion.identity);
-        PlayerMonsterController playerMonsterController = playerMonsterInstance.GetComponent<PlayerMonsterController>();
+        playerMonsterInstance = Instantiate(enemyMonsterPrefab, SpawnPoint, Quaternion.identity);
+        MonsterController monsterController = playerMonsterInstance.GetComponent<MonsterController>();
 
-        if (playerMonsterController != null)
+        if (monsterController != null)
         {
-            playerMonsterController.InitializeMonster(monster);
+            monsterController.FlipSprite(true);
+            monsterController.InitializeMonster(monster);
             HandleSendOutMonsterText(monster);
         }
         else
         {
-            Debug.LogError("PlayerMonsterController component is missing on the Player_Monster_Prefab!");
+            Debug.LogError("MonsterController component is missing on the Monster_Prefab!");
         }
     }
 
@@ -465,14 +466,14 @@ public class GameManager : MonoBehaviour
         currentEnemy = Instantiate(enemyMonsterPrefab, SpawnPoint, Quaternion.identity); // Instantiate the enemy prefab at the spawn point
 
         // Assign the spawned monster's data to the enemy GameObject
-        EnemyController enemyController = currentEnemy.GetComponent<EnemyController>();
-        if (enemyController != null)
+        MonsterController monsterController = currentEnemy.GetComponent<MonsterController>();
+        if (monsterController != null)
         {
-            enemyController.InitializeEnemy(enemyMonsterData1);
+            monsterController.InitializeMonster(enemyMonsterData1);
         }
         else
         {
-            Debug.LogError("EnemyController component is missing on the enemy prefab!");
+            Debug.LogError("MonsterController component is missing on the enemy prefab!");
         }
 
         //Play battle music.
@@ -501,28 +502,28 @@ public class GameManager : MonoBehaviour
         // Spawn the first enemy
         SpawnPoint = new Vector3(2.6f, 0.7f, 0f);  //Set the spawn position.
         currentEnemy = Instantiate(enemyMonsterPrefab, SpawnPoint, Quaternion.identity);
-        EnemyController enemyController1 = currentEnemy.GetComponent<EnemyController>();
-        if (enemyController1 != null)
+        MonsterController monsterController1 = currentEnemy.GetComponent<MonsterController>();
+        if (monsterController1 != null)
         {
-            enemyController1.InitializeEnemy(enemyMonsterData1);
+            monsterController1.InitializeMonster(enemyMonsterData1);
         }
         else
         {
-            Debug.LogError("EnemyController component is missing on the enemy prefab!");
+            Debug.LogError("MonsterController component is missing on the enemy prefab!");
         }
         UpdatePartySlotUI(UI_controller.enemySlot1, enemyMonsterData1);
 
         // Spawn the second enemy
         SpawnPoint = new Vector3(1.4f, 0.9f, 0f);  //Set the spawn position.
         secondEnemy = Instantiate(enemyMonsterPrefab, SpawnPoint, Quaternion.identity); // Adjust position for second enemy (SpawnPoint + new Vector3(2, 0, 0))
-        EnemyController enemyController2 = secondEnemy.GetComponent<EnemyController>();
-        if (enemyController2 != null)
+        MonsterController monsterController2 = secondEnemy.GetComponent<MonsterController>();
+        if (monsterController2 != null)
         {
-            enemyController2.InitializeEnemy(enemyMonsterData2);
+            monsterController2.InitializeMonster(enemyMonsterData2);
         }
         else
         {
-            Debug.LogError("EnemyController component is missing on the second enemy prefab!");
+            Debug.LogError("MonsterController component is missing on the second enemy prefab!");
         }
         UpdatePartySlotUI(UI_controller.enemySlot2, enemyMonsterData2);
         Background.gameObject.SetActive(true); //Change the background sprite later.

@@ -116,7 +116,7 @@ public class UI_Controller : MonoBehaviour
                 // Deal damage to the selected target
                 if (gameManager.spawnedEnemies.Count > 0)
                 {
-                    EnemyController selectedEnemy = gameManager.spawnedEnemies[gameManager.selectedTargetIndex];
+                    MonsterController selectedEnemy = gameManager.spawnedEnemies[gameManager.selectedTargetIndex];
                     selectedEnemy.TakeDamage(1000);
                 }
             }

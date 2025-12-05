@@ -39,7 +39,7 @@ public class TurnBasedBattleSystem : MonoBehaviour
         // Add enemy monsters to the turn order
         foreach (var enemy in gameManager.spawnedEnemies)
         {
-            turnOrder.Add(enemy.enemyData);
+            turnOrder.Add(enemy.monsterData);
         }
 
         // Sort the turn order by speed in descending order
@@ -129,7 +129,7 @@ public class TurnBasedBattleSystem : MonoBehaviour
         uiController.BattleUI_FightMenu.SetActive(false);
 
         // Execute the selected move
-        ExecuteMove(playerMonster, gameManager.spawnedEnemies[gameManager.selectedTargetIndex].enemyData, selectedMove);
+        ExecuteMove(playerMonster, gameManager.spawnedEnemies[gameManager.selectedTargetIndex].monsterData, selectedMove);
 
         yield return new WaitForSeconds(1f); // Wait for animation or effects
     }
@@ -186,7 +186,7 @@ public class TurnBasedBattleSystem : MonoBehaviour
         GameObject targetGameObject = null;
         foreach (var enemy in gameManager.spawnedEnemies)
         {
-            if (enemy.enemyData == target)
+            if (enemy.monsterData == target)
             {
                 targetGameObject = enemy.gameObject;
                 break;
@@ -199,25 +199,25 @@ public class TurnBasedBattleSystem : MonoBehaviour
             return;
         }
 
-        // Get the EnemyController component from the target's GameObject
-        EnemyController enemyController = targetGameObject.GetComponent<EnemyController>();
-        if (enemyController != null && enemyController.Info_Bar_Updater != null)
+        // Get the MonsterController component from the target's GameObject
+        MonsterController monsterController = targetGameObject.GetComponent<MonsterController>();
+        if (monsterController != null && monsterController.Info_Bar_Updater != null)
         {
             // Call AnimateHealthBarAndText using the Info_Bar_Updater reference
-            StartCoroutine(enemyController.Info_Bar_Updater.AnimateHealthBarAndText(target, previousHP, target.extra2Info.current_HP));
+            StartCoroutine(monsterController.Info_Bar_Updater.AnimateHealthBarAndText(target, previousHP, target.extra2Info.current_HP));
         }
         else
         {
-            Debug.LogError("Info_Bar_Updater component is missing or EnemyController is not set up correctly!");
+            Debug.LogError("Info_Bar_Updater component is missing or MonsterController is not set up correctly!");
         }
 
         // Check if the target is defeated
         if (target.extra2Info.current_HP <= 0)
         {
             Debug.Log($"{target.speciesInfo.species} fainted!");
-            if (gameManager.spawnedEnemies.Exists(e => e.enemyData == target))
+            if (gameManager.spawnedEnemies.Exists(e => e.monsterData == target))
             {
-                gameManager.RemoveEnemy(gameManager.spawnedEnemies.Find(e => e.enemyData == target));
+                gameManager.RemoveEnemy(gameManager.spawnedEnemies.Find(e => e.monsterData == target));
             }
             else if (gameManager.playerParty.Contains(target))
             {
