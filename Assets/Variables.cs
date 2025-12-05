@@ -6,6 +6,7 @@ public class Variables : MonoBehaviour
     public bool isInABattle;
     public bool canPlayerInteract;
     public BattleType battleType;
+    public float HP_BAR_Speed_duration = 1f;    // Duration of the hp bar animation
 }
 
 public enum BattleType

@@ -601,6 +601,7 @@ public class GameManager : MonoBehaviour
             UI_controller.BattleUI.gameObject.SetActive(false);
             UI_controller.BattleUI_FightMenu.gameObject.SetActive(false);
             Background.gameObject.SetActive(false);
+            UI_controller.ResetFightMenuSelection();
             Debug.Log("Battle ended! You Won!");
         }
         //else if (spawnedEnemies.Count > 0 && playerParty.Count == 0)  //LOSE        //Need to adjust playerpartycount later for checking if hp is 0.
@@ -699,7 +700,7 @@ public class GameManager : MonoBehaviour
 
 
     
-
+    
 
 
 }

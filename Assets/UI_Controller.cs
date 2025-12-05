@@ -5,6 +5,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using System.Collections.Generic;
 using UnityEngine.UI;
+using TMPro;
 
 public class UI_Controller : MonoBehaviour
 {
@@ -251,16 +252,24 @@ public class UI_Controller : MonoBehaviour
             selectedMoveIndex = 0;
         }
 
-        // Highlight the selected move slot
+        // Highlight the selected move slot by changing the text color
         for (int i = 0; i < fightMenuSlots.Count; i++)
         {
-            if (i == selectedMoveIndex)
+            TextMeshProUGUI slotText = fightMenuSlots[i].GetComponentInChildren<TextMeshProUGUI>();
+            if (slotText != null)
             {
-                fightMenuSlots[i].GetComponent<Image>().color = Color.yellow; // Highlight selected slot
+                if (i == selectedMoveIndex)
+                {
+                    slotText.color = Color.yellow; // Highlight selected slot
+                }
+                else
+                {
+                    slotText.color = Color.white; // Reset color for other slots
+                }
             }
             else
             {
-                fightMenuSlots[i].GetComponent<Image>().color = Color.white; // Reset color for other slots
+                Debug.LogError($"Fight menu slot {i + 1} does not have a TextMeshProUGUI component!");
             }
         }
     }
@@ -271,5 +280,32 @@ public class UI_Controller : MonoBehaviour
         // Get the MoveInformation from the currently selected move slot
         GameObject selectedSlot = fightMenuSlots[selectedMoveIndex];
         return selectedSlot.GetComponent<MoveSlot>().moveInfo; // Ensure MoveSlot script exists and has a moveInfo property
+    }
+
+    public void ResetFightMenuSelection()
+    {
+        // Reset the selected move index to the first slot
+        selectedMoveIndex = 0;
+
+        // Highlight the first move slot
+        for (int i = 0; i < fightMenuSlots.Count; i++)
+        {
+            TextMeshProUGUI slotText = fightMenuSlots[i].GetComponentInChildren<TextMeshProUGUI>();
+            if (slotText != null)
+            {
+                if (i == selectedMoveIndex)
+                {
+                    slotText.color = Color.yellow; // Highlight the first slot
+                }
+                else
+                {
+                    slotText.color = Color.white; // Reset color for other slots
+                }
+            }
+            else
+            {
+                Debug.LogError($"Fight menu slot {i + 1} does not have a TextMeshProUGUI component!");
+            }
+        }
     }
 }

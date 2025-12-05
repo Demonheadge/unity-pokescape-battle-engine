@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 5723625134498245667}
   - component: {fileID: 5785859409798932399}
   - component: {fileID: -1205773933629824499}
+  - component: {fileID: -6106795427925119414}
   m_Layer: 0
   m_Name: Enemy_Prefab
   m_TagString: Untagged
@@ -45,6 +46,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b86c40b8d3a388544b42b0526cb31c03, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyController
+  gameManager: {fileID: 0}
+  Info_Bar_Updater: {fileID: -6106795427925119414}
   enemyData:
     speciesInfo:
       ID: 0
@@ -110,11 +113,7 @@ MonoBehaviour:
       skill_archaeology: 0
       skill_thieving: 0
       skill_invention: 0
-  infoBarPrefab: {fileID: 5283800954411001063, guid: 138c3ca9c3bb07c42824a1b449bad14e, type: 3}
-  TEMP_DAMAGE_VALUE: 1000
   duration: 1
-  CanInteract: 1
-  gameManager: {fileID: 0}
 --- !u!212 &-1205773933629824499
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -173,3 +172,17 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!114 &-6106795427925119414
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8320214355427982697}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8c5474b385a2dad4ab25bc2dda138c3d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Info_Bar_Updater
+  gameManager: {fileID: 0}
+  infoBarPrefab: {fileID: 5283800954411001063, guid: 138c3ca9c3bb07c42824a1b449bad14e, type: 3}

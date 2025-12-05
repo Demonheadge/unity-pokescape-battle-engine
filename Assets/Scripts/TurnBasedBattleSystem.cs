@@ -13,6 +13,8 @@ public class TurnBasedBattleSystem : MonoBehaviour
 {
     public GameManager gameManager;
     public UI_Controller uiController;
+    public MoveDatabase moveDatabase;
+    
 
     private List<SpawnedMonster> turnOrder = new List<SpawnedMonster>();
     private int currentTurnIndex = 0;
@@ -48,6 +50,21 @@ public class TurnBasedBattleSystem : MonoBehaviour
     {
         while (gameManager.variables.isInABattle)
         {
+            // Ensure turnOrder is not empty
+            if (turnOrder.Count == 0)
+            {
+                Debug.LogError("Turn order is empty! Ending battle.");
+                gameManager.variables.isInABattle = false;
+                yield break; // Exit the coroutine
+            }
+
+            // Ensure currentTurnIndex is within bounds
+            if (currentTurnIndex < 0 || currentTurnIndex >= turnOrder.Count)
+            {
+                Debug.LogError($"Invalid currentTurnIndex: {currentTurnIndex}. Resetting to 0.");
+                currentTurnIndex = 0; // Reset to a valid index
+            }
+
             SpawnedMonster currentMonster = turnOrder[currentTurnIndex];
 
             if (gameManager.playerParty.Contains(currentMonster))
@@ -132,54 +149,22 @@ public class TurnBasedBattleSystem : MonoBehaviour
 
     private void PopulateFightMenu(Extra_1_Monster_Info extra1Info)
     {
-        TextMeshProUGUI[] texts = uiController.BattleUI_FightMenu.GetComponentsInChildren<TextMeshProUGUI>();
-        foreach (var text in texts)
-        {
-            switch (text.name)
-            {
-                case "MOVE_SLOT_1":
-                    text.text = extra1Info.move_1.ToString();
-                    break;
-                case "MOVE_SLOT_2":
-                    text.text = extra1Info.move_2.ToString();
-                    break;
-                case "MOVE_SLOT_3":
-                    text.text = extra1Info.move_3.ToString();
-                    break;
-                case "MOVE_SLOT_4":
-                    text.text = extra1Info.move_4.ToString();
-                    break;
-            }
-        }
-
-        // Populate fight menu slots with move data
-        //PopulateMoveSlot(uiController.FightMenu_Move_Slot_1, ConvertMoveToMoveInformation(extra1Info.move_1));
-        //PopulateMoveSlot(uiController.FightMenu_Move_Slot_2, ConvertMoveToMoveInformation(extra1Info.move_2));
-        //PopulateMoveSlot(uiController.FightMenu_Move_Slot_3, ConvertMoveToMoveInformation(extra1Info.move_3));
-        //PopulateMoveSlot(uiController.FightMenu_Move_Slot_4, ConvertMoveToMoveInformation(extra1Info.move_4));
+        // Assign move information to each fight menu slot
+        AssignMoveToSlot(uiController.FightMenu_Move_Slot_1, GetMoveInformation(extra1Info.move_1));
+        AssignMoveToSlot(uiController.FightMenu_Move_Slot_2, GetMoveInformation(extra1Info.move_2));
+        AssignMoveToSlot(uiController.FightMenu_Move_Slot_3, GetMoveInformation(extra1Info.move_3));
+        AssignMoveToSlot(uiController.FightMenu_Move_Slot_4, GetMoveInformation(extra1Info.move_4));
     }
 
-    /*private void PopulateMoveSlot(GameObject slot, MoveInformation moveInfo)
-    {
-        Text slotText = slot.GetComponentInChildren<Text>();
-        if (slotText != null && moveInfo != null)
-        {
-            slotText.text = moveInfo.name;
-        }
-        else
-        {
-            Debug.LogError("Move slot does not have a Text component or moveInfo is null!");
-        }
-    }*/
 
     private MoveInformation SelectRandomMove(Extra_1_Monster_Info extra1Info)
     {
         List<MoveInformation> moves = new List<MoveInformation>
         {
-            ConvertMoveToMoveInformation(extra1Info.move_1),
-            ConvertMoveToMoveInformation(extra1Info.move_2),
-            ConvertMoveToMoveInformation(extra1Info.move_3),
-            ConvertMoveToMoveInformation(extra1Info.move_4)
+            GetMoveInformation(extra1Info.move_1),
+            GetMoveInformation(extra1Info.move_2),
+            GetMoveInformation(extra1Info.move_3),
+            GetMoveInformation(extra1Info.move_4)
         };
         moves.RemoveAll(move => move == null); // Remove null moves
         return moves[Random.Range(0, moves.Count)];
@@ -191,9 +176,40 @@ public class TurnBasedBattleSystem : MonoBehaviour
 
         // Calculate damage based on move data and attacker/target stats
         int damage = moveInfo.damage;
+        int previousHP = target.extra2Info.current_HP;
         target.extra2Info.current_HP -= damage;
+        target.extra2Info.current_HP = Mathf.Clamp(target.extra2Info.current_HP, 0, target.extra2Info.max_HP);
 
         Debug.Log($"{target.speciesInfo.species} took {damage} damage! Remaining HP: {target.extra2Info.current_HP}");
+
+        // Find the GameObject associated with the target SpawnedMonster
+        GameObject targetGameObject = null;
+        foreach (var enemy in gameManager.spawnedEnemies)
+        {
+            if (enemy.enemyData == target)
+            {
+                targetGameObject = enemy.gameObject;
+                break;
+            }
+        }
+
+        if (targetGameObject == null)
+        {
+            Debug.LogError("Target GameObject not found for the given SpawnedMonster!");
+            return;
+        }
+
+        // Get the EnemyController component from the target's GameObject
+        EnemyController enemyController = targetGameObject.GetComponent<EnemyController>();
+        if (enemyController != null && enemyController.Info_Bar_Updater != null)
+        {
+            // Call AnimateHealthBarAndText using the Info_Bar_Updater reference
+            StartCoroutine(enemyController.Info_Bar_Updater.AnimateHealthBarAndText(target, previousHP, target.extra2Info.current_HP));
+        }
+        else
+        {
+            Debug.LogError("Info_Bar_Updater component is missing or EnemyController is not set up correctly!");
+        }
 
         // Check if the target is defeated
         if (target.extra2Info.current_HP <= 0)
@@ -211,19 +227,55 @@ public class TurnBasedBattleSystem : MonoBehaviour
         }
     }
 
-    private MoveInformation ConvertMoveToMoveInformation(Move move)
+
+    private MoveInformation GetMoveInformation(Move move)
     {
-        // Create a new MoveInformation object based on the Move enum
-        return new MoveInformation
+        if (moveDatabase == null)
         {
-            move = move,
-            name = move.ToString(), // Use the enum name as the move name
-            type = MoveType.NONE, // Default type, update as needed
-            effect = MoveEffect.None, // Default effect, update as needed
-            damage = 0, // Default damage, update as needed
-            accuracy = 100, // Default accuracy, update as needed
-            effectSecondary = 0, // Default secondary effect, update as needed
-            catagory = MoveCatagory.STATUS // Default category, update as needed
-        };
+            Debug.LogError("MoveDatabase is not assigned in TurnBasedBattleSystem!");
+            return null;
+        }
+
+        if (moveDatabase.moves == null || moveDatabase.moves.Count == 0)
+        {
+            Debug.LogError("MoveDatabase does not contain any moves!");
+            return null;
+        }
+
+        foreach (MoveInformation moveInfo in moveDatabase.moves)
+        {
+            if (moveInfo.move == move)
+            {
+                return moveInfo;
+            }
+        }
+
+        Debug.LogError($"Move {move} not found in the MoveDatabase!");
+        return null;
     }
+
+    private void AssignMoveToSlot(GameObject slot, MoveInformation moveInfo)
+{
+    // Assign the move information to the MoveSlot component
+    MoveSlot moveSlot = slot.GetComponent<MoveSlot>();
+    if (moveSlot != null)
+    {
+        moveSlot.moveInfo = moveInfo;
+
+        // Update the TextMeshProUGUI text with the move name
+        TextMeshProUGUI slotText = slot.GetComponentInChildren<TextMeshProUGUI>();
+        if (slotText != null && moveInfo != null)
+        {
+            slotText.text = moveInfo.name;
+        }
+        else
+        {
+            Debug.LogError("Move slot does not have a TextMeshProUGUI component or moveInfo is null!");
+        }
+    }
+    else
+    {
+        Debug.LogError("MoveSlot component is missing on the fight menu slot!");
+    }
+}
 }
