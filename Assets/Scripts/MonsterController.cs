@@ -22,7 +22,6 @@ public class MonsterController : MonoBehaviour
         {
             Debug.LogError("SpriteRenderer component is missing on the enemy prefab!");
         }
-        MonsterController monsterController = this.GetComponent<MonsterController>();
     }
 
     private void Start()
@@ -36,7 +35,6 @@ public class MonsterController : MonoBehaviour
         if (monsterData != null)
         {
             InitializeMonster(monsterData);
-            gameManager.spawnedEnemies.Add(this);
         }
         else
         {

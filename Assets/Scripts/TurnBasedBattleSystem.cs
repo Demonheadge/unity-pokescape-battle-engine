@@ -119,7 +119,16 @@ public class TurnBasedBattleSystem : MonoBehaviour
             {
                 // Confirm selection
                 selectedMove = uiController.GetSelectedMove();
-                moveSelected = true;
+                
+                // Check if the selected move is not Move.None
+                if (selectedMove != null && selectedMove.move != Move.NONE)
+                {
+                    moveSelected = true;
+                }
+                else
+                {
+                    Debug.LogWarning("Invalid move selected. Please choose a valid move.");
+                }
             }
 
             yield return null;
@@ -166,7 +175,14 @@ public class TurnBasedBattleSystem : MonoBehaviour
             GetMoveInformation(extra1Info.move_3),
             GetMoveInformation(extra1Info.move_4)
         };
-        moves.RemoveAll(move => move == null); // Remove null moves
+        // Remove null moves and moves with Move.None
+        moves.RemoveAll(move => move == null || move.move == Move.NONE);
+
+        if (moves.Count == 0)
+        {
+            Debug.LogError("No valid moves available for enemy!");
+            return null;
+        }
         return moves[Random.Range(0, moves.Count)];
     }
 
@@ -184,12 +200,27 @@ public class TurnBasedBattleSystem : MonoBehaviour
 
         // Find the GameObject associated with the target SpawnedMonster
         GameObject targetGameObject = null;
-        foreach (var enemy in gameManager.spawnedEnemies)
+
+        // Check in playerParty list
+        foreach (var playerMonster in gameManager.playerParty)
         {
-            if (enemy.monsterData == target)
+            if (playerMonster == target)
             {
-                targetGameObject = enemy.gameObject;
+                //targetGameObject = playerMonster.GetComponent<MonsterController>();
                 break;
+            }
+        }
+
+        // If not found in playerParty, check in spawnedEnemies list
+        if (targetGameObject == null)
+        {
+            foreach (var enemy in gameManager.spawnedEnemies)
+            {
+                if (enemy.monsterData == target)
+                {
+                    targetGameObject = enemy.gameObject;
+                    break;
+                }
             }
         }
 
@@ -218,6 +249,7 @@ public class TurnBasedBattleSystem : MonoBehaviour
             if (gameManager.spawnedEnemies.Exists(e => e.monsterData == target))
             {
                 gameManager.RemoveEnemy(gameManager.spawnedEnemies.Find(e => e.monsterData == target));
+                gameManager.CheckIfEndBattle();
             }
             else if (gameManager.playerParty.Contains(target))
             {
@@ -255,27 +287,35 @@ public class TurnBasedBattleSystem : MonoBehaviour
     }
 
     private void AssignMoveToSlot(GameObject slot, MoveInformation moveInfo)
-{
-    // Assign the move information to the MoveSlot component
-    MoveSlot moveSlot = slot.GetComponent<MoveSlot>();
-    if (moveSlot != null)
     {
-        moveSlot.moveInfo = moveInfo;
-
-        // Update the TextMeshProUGUI text with the move name
-        TextMeshProUGUI slotText = slot.GetComponentInChildren<TextMeshProUGUI>();
-        if (slotText != null && moveInfo != null)
+        // Assign the move information to the MoveSlot component
+        MoveSlot moveSlot = slot.GetComponent<MoveSlot>();
+        if (moveSlot != null)
         {
-            slotText.text = moveInfo.name;
+            moveSlot.moveInfo = moveInfo;
+
+            // Update the TextMeshProUGUI text with the move name
+            TextMeshProUGUI slotText = slot.GetComponentInChildren<TextMeshProUGUI>();
+            if (slotText != null && moveInfo != null)
+            {
+                if (moveInfo.move != Move.NONE)
+                {
+                    slotText.text = moveInfo.name;
+                }
+                else
+                {
+                    slotText.text = "Unavailable"; // Display "Unavailable" for Move.None
+                    moveSlot.moveInfo = null; // Prevent selection of this move
+                }
+            }
+            else
+            {
+                Debug.LogError("Move slot does not have a TextMeshProUGUI component or moveInfo is null!");
+            }
         }
         else
         {
-            Debug.LogError("Move slot does not have a TextMeshProUGUI component or moveInfo is null!");
+            Debug.LogError("MoveSlot component is missing on the fight menu slot!");
         }
     }
-    else
-    {
-        Debug.LogError("MoveSlot component is missing on the fight menu slot!");
-    }
-}
 }

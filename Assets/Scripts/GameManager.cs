@@ -464,6 +464,7 @@ public class GameManager : MonoBehaviour
         SpawnedMonster enemyMonsterData1 = generate_Monster.SpawnMonster(); // Generate a new monster to spawn
         UpdatePartySlotUI(UI_controller.enemySlot1, enemyMonsterData1);
         currentEnemy = Instantiate(enemyMonsterPrefab, SpawnPoint, Quaternion.identity); // Instantiate the enemy prefab at the spawn point
+        spawnedEnemies.Add(currentEnemy.GetComponent<MonsterController>());
 
         // Assign the spawned monster's data to the enemy GameObject
         MonsterController monsterController = currentEnemy.GetComponent<MonsterController>();
@@ -502,6 +503,7 @@ public class GameManager : MonoBehaviour
         // Spawn the first enemy
         SpawnPoint = new Vector3(2.6f, 0.7f, 0f);  //Set the spawn position.
         currentEnemy = Instantiate(enemyMonsterPrefab, SpawnPoint, Quaternion.identity);
+        spawnedEnemies.Add(currentEnemy.GetComponent<MonsterController>());
         MonsterController monsterController1 = currentEnemy.GetComponent<MonsterController>();
         if (monsterController1 != null)
         {
@@ -516,6 +518,7 @@ public class GameManager : MonoBehaviour
         // Spawn the second enemy
         SpawnPoint = new Vector3(1.4f, 0.9f, 0f);  //Set the spawn position.
         secondEnemy = Instantiate(enemyMonsterPrefab, SpawnPoint, Quaternion.identity); // Adjust position for second enemy (SpawnPoint + new Vector3(2, 0, 0))
+        spawnedEnemies.Add(secondEnemy.GetComponent<MonsterController>());
         MonsterController monsterController2 = secondEnemy.GetComponent<MonsterController>();
         if (monsterController2 != null)
         {
@@ -577,9 +580,35 @@ public class GameManager : MonoBehaviour
 
     public void CheckIfEndBattle()
     {
-        if (spawnedEnemies.Count == 0)  //WIN
+        if (spawnedEnemies.Count == 0 && playerParty.Count > 0)  //WIN
         {
-            if (currentEnemy != null)
+            Debug.Log("Defeated all enemies!");
+            EndBattle();
+        }
+        else if (spawnedEnemies.Count > 0)
+        {
+            // Check if all player monsters have 0 HP
+            bool allPlayerMonstersDefeated = true;
+            foreach (var playerMonster in playerParty)
+            {
+                if (playerMonster.extra2Info.current_HP > 0)
+                {
+                    allPlayerMonstersDefeated = false;
+                    break;
+                }
+            }
+
+            if (allPlayerMonstersDefeated)
+            {
+                Debug.Log("All player monsters are defeated! You lose!");
+                EndBattle();
+            }
+        }
+
+    }
+    public void EndBattle()
+    {
+        if (currentEnemy != null)
             {
                 Destroy(currentEnemy);
                 currentEnemy = null;
@@ -603,20 +632,8 @@ public class GameManager : MonoBehaviour
             UI_controller.BattleUI_FightMenu.gameObject.SetActive(false);
             Background.gameObject.SetActive(false);
             UI_controller.ResetFightMenuSelection();
+            selectedTargetIndex = -1;
             Debug.Log("Battle ended! You Won!");
-        }
-        //else if (spawnedEnemies.Count > 0 && playerParty.Count == 0)  //LOSE        //Need to adjust playerpartycount later for checking if hp is 0.
-        //{
-        //    variables.isInABattle = false;
-        //    Debug.Log("InABattle: " + variables.isInABattle);
-        //    BattleScene.gameObject.SetActive(false);
-        //    UI_controller.BattleUI.gameObject.SetActive(false);
-        //    UI_controller.BattleUI_FightMenu.gameObject.SetActive(false);
-        //    Background.gameObject.SetActive(false);
-        //    Debug.Log("Battle ended! You Lost!");
-        //}
-        //Debug.Log("The Battle continues!");
-
     }
 
     public void ClearPlayerParty()

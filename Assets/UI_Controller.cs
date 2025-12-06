@@ -236,21 +236,31 @@ public class UI_Controller : MonoBehaviour
         }
     }
 
-    // New method: NavigateFightMenu
+    
     public void NavigateFightMenu(int direction)
     {
         // Update the selected move index based on the direction (-1 for up, 1 for down)
-        selectedMoveIndex += direction;
+        do
+        {
+            selectedMoveIndex += direction;
 
-        // Ensure the index stays within bounds
-        if (selectedMoveIndex < 0)
-        {
-            selectedMoveIndex = fightMenuSlots.Count - 1;
-        }
-        else if (selectedMoveIndex >= fightMenuSlots.Count)
-        {
-            selectedMoveIndex = 0;
-        }
+            // Ensure the index stays within bounds
+            if (selectedMoveIndex < 0)
+            {
+                selectedMoveIndex = fightMenuSlots.Count - 1;
+            }
+            else if (selectedMoveIndex >= fightMenuSlots.Count)
+            {
+                selectedMoveIndex = 0;
+            }
+
+            // Check if the selected slot contains a valid move
+            MoveSlot moveSlot = fightMenuSlots[selectedMoveIndex].GetComponent<MoveSlot>();
+            if (moveSlot != null && moveSlot.moveInfo != null && moveSlot.moveInfo.move != Move.NONE)
+            {
+                break; // Valid move found, exit the loop
+            }
+        } while (true);
 
         // Highlight the selected move slot by changing the text color
         for (int i = 0; i < fightMenuSlots.Count; i++)

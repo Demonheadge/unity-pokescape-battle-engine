@@ -14,6 +14,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MoveDatabase
   moves:
   - move: 0
+    name: Name
+    type: 0
+    effect: 0
+    damage: 0
+    accuracy: 0
+    effectSecondary: 0
+    catagory: 0
+  - move: 0
     name: '-'
     type: 0
     effect: 0
@@ -25,287 +33,287 @@ MonoBehaviour:
     name: Wind Strike
     type: 0
     effect: 0
-    damage: 30
-    accuracy: 40
-    effectSecondary: 100
+    damage: 40
+    accuracy: 100
+    effectSecondary: 30
     catagory: 2
   - move: 3
     name: Wind Blast
     type: 0
     effect: 0
-    damage: 70
-    accuracy: 0
-    effectSecondary: 100
+    damage: 10
+    accuracy: 100
+    effectSecondary: 70
     catagory: 2
   - move: 4
     name: Wind Wave
     type: 0
     effect: 0
-    damage: 0
-    accuracy: 80
-    effectSecondary: 100
+    damage: 80
+    accuracy: 100
+    effectSecondary: 0
     catagory: 2
   - move: 5
     name: Wind Surge
     type: 0
     effect: 0
-    damage: 0
-    accuracy: 420
-    effectSecondary: 100
+    damage: 420
+    accuracy: 100
+    effectSecondary: 0
     catagory: 2
   - move: 6
     name: Earth Strike
     type: 0
     effect: 0
-    damage: 0
-    accuracy: 10
-    effectSecondary: 100
+    damage: 10
+    accuracy: 100
+    effectSecondary: 0
     catagory: 1
   - move: 7
     name: Earth Blast
     type: 0
     effect: 0
-    damage: 0
-    accuracy: 10
-    effectSecondary: 100
+    damage: 10
+    accuracy: 100
+    effectSecondary: 0
     catagory: 1
   - move: 8
     name: Earth Wave
     type: 0
     effect: 0
-    damage: 0
-    accuracy: 15
-    effectSecondary: 100
+    damage: 15
+    accuracy: 100
+    effectSecondary: 0
     catagory: 1
   - move: 9
     name: Earth Surge
     type: 0
     effect: 0
-    damage: 0
-    accuracy: 20
-    effectSecondary: 100
+    damage: 20
+    accuracy: 100
+    effectSecondary: 0
     catagory: 1
   - move: 10
     name: Water Strike
     type: 0
     effect: 0
-    damage: 0
-    accuracy: 10
-    effectSecondary: 100
+    damage: 10
+    accuracy: 100
+    effectSecondary: 0
     catagory: 1
   - move: 11
     name: Water Blast
     type: 0
     effect: 0
-    damage: 0
-    accuracy: 13
-    effectSecondary: 100
+    damage: 13
+    accuracy: 100
+    effectSecondary: 0
     catagory: 1
   - move: 12
     name: Water Wave
     type: 0
     effect: 0
-    damage: 0
-    accuracy: 10
-    effectSecondary: 100
+    damage: 10
+    accuracy: 100
+    effectSecondary: 0
     catagory: 1
   - move: 13
     name: Water Surge
     type: 0
     effect: 0
-    damage: 0
-    accuracy: 75
-    effectSecondary: 100
+    damage: 75
+    accuracy: 100
+    effectSecondary: 0
     catagory: 1
   - move: 14
     name: Fire Strike
     type: 0
     effect: 0
-    damage: 0
-    accuracy: 10
-    effectSecondary: 100
+    damage: 10
+    accuracy: 100
+    effectSecondary: 0
     catagory: 1
   - move: 15
     name: Fire Blast
     type: 0
     effect: 0
-    damage: 0
-    accuracy: 80
-    effectSecondary: 100
+    damage: 80
+    accuracy: 100
+    effectSecondary: 0
     catagory: 1
   - move: 16
     name: Fire Wave
     type: 0
     effect: 0
-    damage: 0
-    accuracy: 30
-    effectSecondary: 100
+    damage: 30
+    accuracy: 100
+    effectSecondary: 0
     catagory: 1
   - move: 17
     name: Fire Surge
     type: 0
     effect: 0
-    damage: 0
-    accuracy: 10
-    effectSecondary: 100
+    damage: 10
+    accuracy: 100
+    effectSecondary: 0
     catagory: 1
   - move: 18
     name: Ice Rush
     type: 0
     effect: 0
-    damage: 0
-    accuracy: 30
-    effectSecondary: 100
+    damage: 30
+    accuracy: 100
+    effectSecondary: 0
     catagory: 1
   - move: 19
     name: Ice Burst
     type: 0
     effect: 0
-    damage: 0
-    accuracy: 35
-    effectSecondary: 100
+    damage: 35
+    accuracy: 100
+    effectSecondary: 0
     catagory: 1
   - move: 20
     name: Ice Blitz
     type: 0
     effect: 0
-    damage: 0
-    accuracy: 45
-    effectSecondary: 100
+    damage: 45
+    accuracy: 100
+    effectSecondary: 0
     catagory: 1
   - move: 21
     name: Ice Barrage
     type: 0
     effect: 0
-    damage: 0
-    accuracy: 10
-    effectSecondary: 100
+    damage: 10
+    accuracy: 100
+    effectSecondary: 0
     catagory: 1
   - move: 22
     name: Blood Rush
     type: 0
     effect: 0
-    damage: 0
-    accuracy: 10
-    effectSecondary: 100
+    damage: 10
+    accuracy: 100
+    effectSecondary: 0
     catagory: 1
   - move: 23
     name: Blood Burst
     type: 0
     effect: 0
-    damage: 0
-    accuracy: 45
-    effectSecondary: 100
+    damage: 45
+    accuracy: 100
+    effectSecondary: 0
     catagory: 1
   - move: 24
     name: Blood Blitz
     type: 0
     effect: 0
-    damage: 0
-    accuracy: 12
-    effectSecondary: 100
+    damage: 12
+    accuracy: 100
+    effectSecondary: 0
     catagory: 1
   - move: 25
     name: Blood Barrage
     type: 0
     effect: 0
-    damage: 0
-    accuracy: 15
-    effectSecondary: 100
+    damage: 15
+    accuracy: 100
+    effectSecondary: 0
     catagory: 1
   - move: 26
     name: Smoke Rush
     type: 0
     effect: 0
-    damage: 0
-    accuracy: 10
-    effectSecondary: 100
+    damage: 10
+    accuracy: 100
+    effectSecondary: 0
     catagory: 1
   - move: 27
     name: Smoke Burst
     type: 0
     effect: 0
-    damage: 0
-    accuracy: 18
-    effectSecondary: 100
+    damage: 18
+    accuracy: 100
+    effectSecondary: 0
     catagory: 1
   - move: 28
     name: Smoke Blitz
     type: 0
     effect: 0
-    damage: 0
-    accuracy: 10
-    effectSecondary: 100
+    damage: 10
+    accuracy: 100
+    effectSecondary: 0
     catagory: 1
   - move: 29
     name: Smoke Barrage
     type: 0
     effect: 0
-    damage: 0
-    accuracy: 10
-    effectSecondary: 100
+    damage: 10
+    accuracy: 100
+    effectSecondary: 0
     catagory: 1
   - move: 30
     name: Shadow Rush
     type: 0
     effect: 0
-    damage: 0
-    accuracy: 80
-    effectSecondary: 100
+    damage: 80
+    accuracy: 100
+    effectSecondary: 0
     catagory: 1
   - move: 31
     name: Shadow Burst
     type: 0
     effect: 0
-    damage: 0
-    accuracy: 10
-    effectSecondary: 100
+    damage: 10
+    accuracy: 100
+    effectSecondary: 0
     catagory: 1
   - move: 32
     name: Shadow Blitz
     type: 0
     effect: 0
-    damage: 0
-    accuracy: 90
-    effectSecondary: 100
+    damage: 90
+    accuracy: 100
+    effectSecondary: 0
     catagory: 1
   - move: 33
     name: Shadow Barrage
     type: 0
     effect: 0
-    damage: 0
-    accuracy: 10
-    effectSecondary: 100
+    damage: 10
+    accuracy: 100
+    effectSecondary: 0
     catagory: 1
   - move: 34
     name: Peck
     type: 0
     effect: 0
-    damage: 0
-    accuracy: 30
-    effectSecondary: 100
+    damage: 30
+    accuracy: 100
+    effectSecondary: 0
     catagory: 1
   - move: 35
     name: Guthix Claws
     type: 0
     effect: 0
-    damage: 0
-    accuracy: 110
-    effectSecondary: 95
+    damage: 110
+    accuracy: 95
+    effectSecondary: 0
     catagory: 2
   - move: 36
     name: Zamorak Flames
     type: 0
     effect: 0
-    damage: 0
-    accuracy: 110
-    effectSecondary: 95
+    damage: 110
+    accuracy: 95
+    effectSecondary: 0
     catagory: 2
   - move: 37
     name: Saradomin Strike
     type: 0
     effect: 0
-    damage: 0
-    accuracy: 110
-    effectSecondary: 95
+    damage: 110
+    accuracy: 95
+    effectSecondary: 0
     catagory: 2

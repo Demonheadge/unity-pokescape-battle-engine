@@ -64,8 +64,32 @@ MonoBehaviour:
     moves:
     - level: 50
       move: 36
+    - level: 1
+      move: 17
   - ID: 0
     name: 9
     moves:
     - level: 50
       move: 37
+    - level: 1
+      move: 11
+  - ID: 0
+    name: 4
+    moves:
+    - level: 1
+      move: 14
+  - ID: 0
+    name: 5
+    moves:
+    - level: 1
+      move: 15
+  - ID: 0
+    name: 7
+    moves:
+    - level: 1
+      move: 13
+  - ID: 0
+    name: 8
+    moves:
+    - level: 1
+      move: 11

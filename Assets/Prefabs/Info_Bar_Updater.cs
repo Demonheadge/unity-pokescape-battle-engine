@@ -152,7 +152,7 @@ public class Info_Bar_Updater : MonoBehaviour
         if (targetHP <= 0)
         {
             StartCoroutine(ShrinkAndDie());
-            Debug.Log(monster.speciesInfo.species.ToString() + " fainted!");
+            Debug.Log(monster.speciesInfo.species.ToString() + " played the fainted animation!");
         }
         gameManager.variables.canPlayerInteract = true;
         Debug.Log("CanInteract: " + gameManager.variables.canPlayerInteract);

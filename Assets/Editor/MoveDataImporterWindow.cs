@@ -71,9 +71,9 @@ public class MoveDataImporterWindow : EditorWindow
             string name = FormatMoveName(values[0]); // Format name from MoveID
             MoveType type = ParseMoveType(values[1]); // Parse MoveType enum or set to default
             MoveEffect effect = ParseMoveEffect(values[2]); // Parse MoveEffect enum or set to default
-            int damage = ParseInt(values[3], 0); // Default damage to 0 if invalid
-            int accuracy = ParseInt(values[4], 0); // Default accuracy to 0 if invalid
-            int effectSecondary = ParseInt(values[5], 0); // Default effectSecondary to 0 if invalid
+            int damage = ParseInt(values[4], 0); // Default damage to 0 if invalid
+            int accuracy = ParseInt(values[5], 0); // Default accuracy to 0 if invalid
+            int effectSecondary = ParseInt(values[3], 0); // Default effectSecondary to 0 if invalid
             MoveCatagory catagory = ParseMoveCatagory(values[6]); // Parse MoveCatagory enum or set to default
 
             // Create and add the move to the database
