@@ -21,14 +21,6 @@ MonoBehaviour:
     accuracy: 0
     effectSecondary: 0
     catagory: 0
-  - move: 0
-    name: '-'
-    type: 0
-    effect: 0
-    damage: 0
-    accuracy: 0
-    effectSecondary: 0
-    catagory: 0
   - move: 2
     name: Wind Strike
     type: 0

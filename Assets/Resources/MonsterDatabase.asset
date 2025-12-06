@@ -13,21 +13,6 @@ MonoBehaviour:
   m_Name: MonsterDatabase
   m_EditorClassIdentifier: Assembly-CSharp::MonsterDatabase
   monsters:
-  - ID: 0
-    species: 0
-    name: '-'
-    type: 0
-    baseHP: 0
-    baseSpeed: 0
-    baseAttack_Melee: 0
-    baseAttack_Ranged: 0
-    baseAttack_Magic: 0
-    baseDefense_Melee: 0
-    baseDefense_Ranged: 0
-    baseDefense_Magic: 0
-    front_sprite: {fileID: 0}
-    back_sprite: {fileID: 0}
-    partyicon: {fileID: 0}
   - ID: 1
     species: 1
     name: Guthling
