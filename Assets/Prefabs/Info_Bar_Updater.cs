@@ -78,7 +78,7 @@ public class Info_Bar_Updater : MonoBehaviour
             }
         } while (isColliding);
 
-        Debug.Log($"Adjusted position of HP bar from {originalPosition} to {infoBar.transform.localPosition}");
+        //Debug.Log($"Adjusted position of HP bar from {originalPosition} to {infoBar.transform.localPosition}");
     }
 
     public void InitializeUI(SpawnedMonster monster)

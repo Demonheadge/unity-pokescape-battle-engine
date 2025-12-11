@@ -51,7 +51,7 @@ public class GameManager : MonoBehaviour
         
     }
 
-    public void SetInitialTarget()
+    /*public void SetInitialTarget()
     {
         if (spawnedEnemies.Count > 0)
         {
@@ -104,7 +104,7 @@ public class GameManager : MonoBehaviour
 
             Debug.Log($"Selected target: {selectedEnemy.monsterData.speciesInfo.species}");
         }
-    }
+    }*/
 
     public void RemoveEnemy(MonsterController enemy)
     {
@@ -119,7 +119,7 @@ public class GameManager : MonoBehaviour
                 if (spawnedEnemies.Count > 0)
                 {
                     selectedTargetIndex = Mathf.Clamp(removedIndex, 0, spawnedEnemies.Count - 1);
-                    HighlightSelectedTarget();
+                    //HighlightSelectedTarget();
                 }
                 else
                 {
@@ -567,7 +567,7 @@ public class GameManager : MonoBehaviour
             SendOutPlayersMonster(playersMonster);  
             yield return new WaitForSeconds(2f);
             UI_controller.BattleUI_EncounterText.gameObject.SetActive(false);
-            SetInitialTarget(); // Set the initial target to the first monster in the list when the battle begins
+            //SetInitialTarget(); // Set the initial target to the first monster in the list when the battle begins
             TurnbasedSystem.BeginTurns();
         }
         else
@@ -578,18 +578,26 @@ public class GameManager : MonoBehaviour
 
 
 
+    public void FleeBattle()
+    {
+        Debug.Log("You fled the battle!");
+        Debug.Log(spawnedEnemyMonsters);
+        EndBattle();
+    }
+    
+
     public void CheckIfEndBattle()
     {
-        if (spawnedEnemies.Count == 0 && playerParty.Count > 0)  //WIN
+        if (spawnedEnemyMonsters.Count == 0 && spawnedPlayerMonsters.Count > 0)  //WIN
         {
             Debug.Log("Defeated all enemies!");
             EndBattle();
         }
-        else if (spawnedEnemies.Count > 0)
+        else if (spawnedEnemyMonsters.Count > 0)
         {
             // Check if all player monsters have 0 HP
             bool allPlayerMonstersDefeated = true;
-            foreach (var playerMonster in playerParty)
+            foreach (var playerMonster in spawnedPlayerMonsters)
             {
                 if (playerMonster.extra2Info.current_HP > 0)
                 {
@@ -604,36 +612,82 @@ public class GameManager : MonoBehaviour
                 EndBattle();
             }
         }
-
     }
+    
+    
+
+    public void Despawn_Battle_Monsters()
+    {
+        Debug.Log("You fled the battle!");
+
+        // Destroy all enemy monsters
+        //foreach (SpawnedMonster enemyMonster in spawnedEnemyMonsters)
+        //{
+        //    //DestroyMonsterGameObject(enemyMonster);
+        //}
+        spawnedEnemyMonsters.Clear();
+
+        // Destroy all player monsters
+        //foreach (SpawnedMonster playerMonster in spawnedPlayerMonsters)
+        //{
+        //    //DestroyMonsterGameObject(playerMonster);
+        //}
+        spawnedPlayerMonsters.Clear();
+
+        // Clear combined targets list
+        combinedTargets.Clear();
+        
+
+        Debug.Log("All monsters have been removed from the field.");
+        EndBattle();
+    }
+
+    private void DestroyMonsterGameObject(SpawnedMonster monster)
+    {
+        // Find the GameObject associated with the SpawnedMonster
+        MonsterController[] monsterControllers = UnityEngine.Object.FindObjectsByType<MonsterController>(FindObjectsSortMode.None);
+        foreach (MonsterController controller in monsterControllers)
+        {
+            if (controller.monsterData == monster)
+            {
+                Destroy(controller.gameObject);
+                break;
+            }
+        }
+    }
+
     public void EndBattle()
     {
-        if (currentEnemy != null)
-            {
-                Destroy(currentEnemy);
-                currentEnemy = null;
-                ClearPartySlotUI(UI_controller.enemySlot1);
-            }
-            if (secondEnemy != null)
-            {
-                Destroy(secondEnemy);
-                secondEnemy = null;
-                ClearPartySlotUI(UI_controller.enemySlot2);
-            }
-            if (playerMonsterInstance != null)
-            {
-                Destroy(playerMonsterInstance);
-                playerMonsterInstance = null;
-            }
-            variables.isInABattle = false;
-            Debug.Log("InABattle: " + variables.isInABattle);
-            BattleScene.gameObject.SetActive(false);
-            UI_controller.BattleUI.gameObject.SetActive(false);
-            UI_controller.BattleUI_FightMenu.gameObject.SetActive(false);
-            Background.gameObject.SetActive(false);
-            UI_controller.ResetFightMenuSelection();
-            selectedTargetIndex = -1;
-            Debug.Log("Battle ended! You Won!");
+        //Clear all battle objects.
+        Despawn_Battle_Monsters();
+        /*if (currentEnemy != null)
+        {
+            Destroy(currentEnemy);
+            currentEnemy = null;
+            ClearPartySlotUI(UI_controller.enemySlot1);
+        }
+        if (secondEnemy != null)
+        {
+            Destroy(secondEnemy);
+            secondEnemy = null;
+            ClearPartySlotUI(UI_controller.enemySlot2);
+        }
+        if (playerMonsterInstance != null)
+        {
+            Destroy(playerMonsterInstance);
+            playerMonsterInstance = null;
+        }*/
+        //
+
+        //Clear Battle Interfaces.
+        variables.isInABattle = false;
+        BattleScene.gameObject.SetActive(false);
+        UI_controller.BattleUI.gameObject.SetActive(false);
+        Background.gameObject.SetActive(false);
+        //Reset Battle variables.
+        //UI_controller.ResetFightMenuSelection();
+        //selectedTargetIndex = -1;
+        Debug.Log("Battle ended!");
     }
 
     public void ClearPlayerParty()
@@ -718,7 +772,420 @@ public class GameManager : MonoBehaviour
 
 
     
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+////NEW CODE
+
+
+    public GameObject MonsterPrefab; // Prefab for the enemy monster
+    public int PlayerSide_HowManyMonsters_InBattle; // Number of monsters to send out in battle
+    public List<SpawnedMonster> spawnedPlayerMonsters; // List to keep track of spawned player monsters
+    public int EnemySide_HowManyMonsters_InBattle; // Number of monsters to send out in battle
+    public List<SpawnedMonster> spawnedEnemyMonsters; // List to keep track of spawned enemy monsters
+    public List<SpawnedMonster> combinedTargets;
+
+    public void Trigger_WildEncounter()
+    {
+        Debug.Log("You encounter a wild monster in the grass!");
+        variables.BATTLE_TYPE_WILD_MONSTER = true;
+        currentBattleType = BattleType.BATTLE_2_VS_2;
+        BattleSetup();
+    }
+
+    public bool Battle_CanPlayerBattle() 
+    {
+        if (playerParty.Count == 0)
+        {
+            Debug.Log("No monsters in the player's party!");
+            Debug.Log("The Player cannot battle.");
+            return false;
+        }
+        return true;
+    }
+
+    public void BattleSetup() 
+    {
+        if (!Battle_CanPlayerBattle())
+        {
+            return;
+        }
+    //What type of battle is it.
+        if (variables.BATTLE_TYPE_WILD_MONSTER)
+        {
+            StartCoroutine(BattleSetup_WildBattle());
+        }
+        else if (variables.BATTLE_TYPE_TRAINER)
+        {
+            //BattleSetup_WildBattle();
+        }
+        return;
+    }
+
+
+    public IEnumerator BattleSetup_WildBattle() 
+    {
+        LockAllPlayerFieldControls();       //Lock all field controls.
+        //Player Battle music.
+        BattleSetup_BattleTransition();     //Begin Battle Transtion
+        switch (currentBattleType)
+        {
+            case BattleType.BATTLE_1_VS_1:
+                PlayerSide_HowManyMonsters_InBattle = 1;
+                EnemySide_HowManyMonsters_InBattle = 1;
+                Debug.Log($"{BattleType.BATTLE_1_VS_1}");
+                break;
+            case BattleType.BATTLE_1_VS_2:
+                PlayerSide_HowManyMonsters_InBattle = 1;
+                EnemySide_HowManyMonsters_InBattle = 2;
+                Debug.Log($"{BattleType.BATTLE_1_VS_2}");
+                break;
+            case BattleType.BATTLE_2_VS_1:
+                PlayerSide_HowManyMonsters_InBattle = 2;
+                EnemySide_HowManyMonsters_InBattle = 1;
+                Debug.Log($"{BattleType.BATTLE_2_VS_1}");
+                break;
+            case BattleType.BATTLE_2_VS_2:
+                PlayerSide_HowManyMonsters_InBattle = 2;
+                EnemySide_HowManyMonsters_InBattle = 2;
+                Debug.Log($"{BattleType.BATTLE_2_VS_2}");
+                break;
+            default:
+                Debug.LogError("Unknown battle type!");
+                break;
+        }
+        Init_BattleSetup_SpawnEnemyMonsters_Wild();
+        yield return StartCoroutine(Handle_EncounterText(spawnedEnemyMonsters));
+        Init_BattleSetup_SendOutPlayerMonsters();
+        yield return StartCoroutine(Handle_SendOutMonsterText(spawnedPlayerMonsters));
+        
+        //SetInitialTarget(); // Set the initial target to the first monster in the list when the battle begins
+        TurnbasedSystem.BeginTurns();
+
+    }
+
+    public void LockAllPlayerFieldControls()
+    {
+        variables.canPlayerInteract = false;
+        Debug.Log("Player Controls are now locked.");
+    }
+    public void BattleSetup_BattleTransition() 
+    {
+        variables.isInABattle = true;
+        UI_controller.BattleUI.gameObject.SetActive(true);
+        BattleScene.gameObject.SetActive(true);
+        return;
+    }
+    
+    
+    private Vector3 GetSpawnPosition(int index, float customX, float customY)
+    {
+        // Define spawn positions based on the index
+        // You can customize this logic to suit your game's requirements
+        float xOffset = customX + index * 1.0f; // Example: space monsters 1 units apart
+        float yOffset = customY;
+        return new Vector3(xOffset, yOffset, 0); // Adjust as needed
+    }
+
+    public void Init_BattleSetup_SendOutPlayerMonsters()
+    {
+        // Clear the currently spawned player monsters
+        spawnedPlayerMonsters.Clear();
+
+        // Ensure the number of monsters to send out does not exceed the size of the player party
+        int monstersToSendOut = Mathf.Min(PlayerSide_HowManyMonsters_InBattle, playerParty.Count);
+
+        for (int i = 0; i < monstersToSendOut; i++)
+        {
+            SpawnedMonster monsterToSendOut = playerParty[i];
+
+            // Instantiate the monster's GameObject in the scene
+            GameObject monsterGameObject = Instantiate(MonsterPrefab, GetSpawnPosition(i, 0f, 0f), Quaternion.identity);
+
+            // Flip the sprite horizontally
+            SpriteRenderer spriteRenderer = monsterGameObject.GetComponent<SpriteRenderer>();
+            if (spriteRenderer != null)
+            {
+                spriteRenderer.flipX = true; // Flip the sprite horizontally
+            }
+            else
+            {
+                Debug.LogError("SpriteRenderer component is missing on the instantiated monster prefab!");
+            }
+            
+            // Add the instantiated monster to the spawnedPlayerMonsters list
+            MonsterController monsterController = monsterGameObject.GetComponent<MonsterController>();
+            if (monsterController != null)
+            {
+                monsterController.monsterData = monsterToSendOut;
+                spawnedPlayerMonsters.Add(monsterController.monsterData);
+                Debug.Log($"Player's monster {monsterController.monsterData.speciesInfo.species} has been sent out!");
+            }
+            else
+            {
+                Debug.LogError("MonsterController component is missing on the instantiated monster prefab!");
+            }
+        }
+        
+    }
+
+    public void Init_BattleSetup_SpawnEnemyMonsters_Wild()
+    {
+        // Clear the currently spawned player monsters
+        spawnedEnemyMonsters.Clear();
+
+        // Ensure the number of monsters to send out does not exceed the size of the player party
+        int monstersToSendOut = Mathf.Min(PlayerSide_HowManyMonsters_InBattle);
+
+        for (int i = 0; i < monstersToSendOut; i++)
+        {
+            SpawnedMonster monsterToSendOut = generate_Monster.SpawnMonster();
+
+            // Instantiate the monster's GameObject in the scene
+            GameObject monsterGameObject = Instantiate(MonsterPrefab, GetSpawnPosition(i, 2.1f, 0.9f), Quaternion.identity);
+            
+            // Add the instantiated monster to the spawnedEnemyMonsters list
+            MonsterController monsterController = monsterGameObject.GetComponent<MonsterController>();
+            if (monsterController != null)
+            {
+                monsterController.monsterData = monsterToSendOut;
+                spawnedEnemyMonsters.Add(monsterController.monsterData);
+                Debug.Log($"Wild {monsterController.monsterData.speciesInfo.species} has appeared!");
+            }
+            else
+            {
+                Debug.LogError("MonsterController component is missing on the instantiated monster prefab!");
+            }
+        }
+    }
+
+    
     
 
+
+
+
+    private IEnumerator Handle_EncounterText(List<SpawnedMonster> spawnedEnemyMonsters)
+    {
+        UI_controller.BattleUI_EncounterText.gameObject.SetActive(true);
+        TextMeshProUGUI[] texts = UI_controller.BattleUI_EncounterText.GetComponentsInChildren<TextMeshProUGUI>();
+        foreach (var text in texts)
+        {
+            switch (text.name)
+            {
+                case "EncounterText":
+                    // Create a dynamic message based on the number of enemies
+                    string encounterMessage = "A wild ";
+                    for (int i = 0; i < spawnedEnemyMonsters.Count; i++)
+                    {
+                        encounterMessage += spawnedEnemyMonsters[i].speciesInfo.species;
+                        if (i < spawnedEnemyMonsters.Count - 1)
+                        {
+                            encounterMessage += " and ";
+                        }
+                    }
+                    encounterMessage += " have appeared!";
+                    text.text = encounterMessage;
+                    break;
+            }
+        }
+        yield return new WaitForSeconds(2f);    // Wait for x seconds.
+        UI_controller.BattleUI_EncounterText.gameObject.SetActive(false);   // Disable the Encounter Text
+    }
+
+    private IEnumerator Handle_SendOutMonsterText(List<SpawnedMonster> spawnedPlayerMonsters)
+    {
+        UI_controller.BattleUI_EncounterText.gameObject.SetActive(true);
+        TextMeshProUGUI[] texts = UI_controller.BattleUI_EncounterText.GetComponentsInChildren<TextMeshProUGUI>();
+        foreach (var text in texts)
+        {
+            switch (text.name)
+            {
+                case "EncounterText":
+                    // Create a dynamic message based on the number of enemies
+                    string encounterMessage = "TRAINER_NAME sent out ";
+                    for (int i = 0; i < spawnedPlayerMonsters.Count; i++)
+                    {
+                        encounterMessage += spawnedPlayerMonsters[i].speciesInfo.species;
+                        if (i < spawnedPlayerMonsters.Count - 1)
+                        {
+                            encounterMessage += " and ";
+                        }
+                    }
+                    encounterMessage += " into battle!";
+                    text.text = encounterMessage;
+                    break;
+            }
+        }
+        yield return new WaitForSeconds(2f);    // Wait for x seconds.
+        UI_controller.BattleUI_EncounterText.gameObject.SetActive(false);   // Disable the Encounter Text
+    }
+
+
+
+
+
+
+
+
+
+
+
+    // Method to combine spawnedEnemyMonsters and spawnedPlayerMonsters alternately
+    public List<SpawnedMonster> GetCombinedTargetList()
+    {
+        List<SpawnedMonster> combinedTargets = new List<SpawnedMonster>();
+        int maxCount = Mathf.Max(spawnedEnemyMonsters.Count, spawnedPlayerMonsters.Count);
+
+        for (int i = 0; i < maxCount; i++)
+        {
+            if (i < spawnedEnemyMonsters.Count)
+            {
+                combinedTargets.Add(spawnedEnemyMonsters[i]);
+            }
+            if (i < spawnedPlayerMonsters.Count)
+            {
+                combinedTargets.Add(spawnedPlayerMonsters[i]);
+            }
+        }
+
+        return combinedTargets;
+    }
+
+    // Updated SwapTarget method
+    public void SwapTarget()
+    {
+        // Get the combined list
+        List<SpawnedMonster> sortedTargets = GetCombinedTargetList();
+
+        if (sortedTargets.Count > 0)
+        {
+            // Increment the selected target index
+            selectedTargetIndex++;
+            if (selectedTargetIndex >= sortedTargets.Count)
+            {
+                selectedTargetIndex = 0; // Wrap around to the first target
+            }
+
+            // Highlight the selected target
+            HighlightSelectedTarget(selectedTargetIndex);
+        }
+    }
+
+    // Example usage in SetInitialTarget
+    public void SetInitialTarget()
+    {
+        List<SpawnedMonster> combinedTargets = GetCombinedTargetList();
+
+        if (combinedTargets.Count > 0)
+        {
+            // Set the initial target to the first monster in the combined list
+            SpawnedMonster initialTarget = combinedTargets[0];
+            Debug.Log($"Initial Target: {initialTarget.speciesInfo.species}");
+            selectedTargetIndex = 0; // Set the initial target to the first monster in the list
+            HighlightSelectedTarget(selectedTargetIndex);
+        }
+        else
+        {
+            Debug.LogWarning("No targets available to set as initial target!");
+        }
+    }
+
+    public void HighlightSelectedTarget(int selectedIndex)
+    {
+        List<SpawnedMonster> combinedTargets = GetCombinedTargetList();
+
+        // Reset the color of all targets to white
+        foreach (var target in combinedTargets)
+        {
+            GameObject targetGameObject = FindMonsterGameObject(target);
+            if (targetGameObject != null)
+            {
+                SpriteRenderer spriteRenderer = targetGameObject.GetComponent<SpriteRenderer>();
+                if (spriteRenderer != null)
+                {
+                    spriteRenderer.color = Color.white; // Reset color to default (white)
+                }
+                else
+                {
+                    Debug.LogError("SpriteRenderer component is missing on the target's GameObject!");
+                }
+            }
+        }
+
+        // Highlight the selected target in red
+        if (selectedIndex >= 0 && selectedIndex < combinedTargets.Count)
+        {
+            SpawnedMonster selectedTarget = combinedTargets[selectedIndex];
+            GameObject selectedTargetGameObject = FindMonsterGameObject(selectedTarget);
+
+            if (selectedTargetGameObject != null)
+            {
+                SpriteRenderer spriteRenderer = selectedTargetGameObject.GetComponent<SpriteRenderer>();
+                if (spriteRenderer != null)
+                {
+                    spriteRenderer.color = Color.red; // Highlight the selected target in red
+                    Debug.Log($"Highlighted Target: {selectedTarget.speciesInfo.species} is now highlighted in red.");
+                }
+                else
+                {
+                    Debug.LogError("SpriteRenderer component is missing on the selected target's GameObject!");
+                }
+            }
+            else
+            {
+                Debug.LogError("Target GameObject not found for the selected SpawnedMonster!");
+            }
+        }
+        else
+        {
+            Debug.LogWarning("Invalid target index for highlighting!");
+        }
+    }
+
+
+    // Helper method to find the GameObject associated with a SpawnedMonster
+    private GameObject FindMonsterGameObject(SpawnedMonster monster)
+    {
+        // Use FindObjectsByType with FindObjectSortMode.None for better performance
+        var monsterControllers = UnityEngine.Object.FindObjectsByType<MonsterController>(FindObjectsSortMode.None);
+
+        foreach (var monsterController in monsterControllers)
+        {
+            if (monsterController.monsterData == monster)
+            {
+                return monsterController.gameObject;
+            }
+        }
+        return null;
+    }
+
+    
 
 }

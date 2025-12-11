@@ -147,11 +147,11 @@ public class Generate_Monster : MonoBehaviour
                     if (moveLevelPair.move != Move.NONE && moveLevelPair.level > 0 && moveLevelPair.level <= currentLevel && !usableMoves.Contains(moveLevelPair.move))
                     {
                         usableMoves.Add(moveLevelPair.move);
-                        Debug.Log($"Added move: {moveLevelPair.move} (Level: {moveLevelPair.level}) to usable moves list.");
+                        //Debug.Log($"Added move: {moveLevelPair.move} (Level: {moveLevelPair.level}) to usable moves list.");
                     }
                     else if (moveLevelPair.move == Move.NONE || moveLevelPair.level == 0)
                     {
-                        Debug.Log($"Skipped move: {moveLevelPair.move} (Level: {moveLevelPair.level}) as it is invalid.");
+                        //Debug.Log($"Skipped move: {moveLevelPair.move} (Level: {moveLevelPair.level}) as it is invalid.");
                     }
                 }
             }

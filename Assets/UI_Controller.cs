@@ -25,6 +25,9 @@ public class UI_Controller : MonoBehaviour
     public GameObject enemySlot1; // Reference to the Enemy_Slot_1 GameObject
     public GameObject enemySlot2; // Reference to the Enemy_Slot_2 GameObject
 
+    //Options Menu
+    public GameObject BattleUI_OptionMenu;
+
     // Fight Menu
     public GameObject BattleUI_FightMenu;
     public GameObject FightMenu_Move_Slot_1;
@@ -152,13 +155,14 @@ public class UI_Controller : MonoBehaviour
         // If you are not in a battle and can interact
         if ((!variables.isInABattle) && variables.canPlayerInteract)
         {
-            gameManager.StartBattle();
+            gameManager.Trigger_WildEncounter();
+            //gameManager.StartBattle();
         }
         // If you are in a battle and can interact
         if ((variables.isInABattle) && variables.canPlayerInteract)
         {
-            gameManager.spawnedEnemies.Clear();
-            gameManager.CheckIfEndBattle();
+            //gameManager.spawnedEnemies.Clear();
+            //gameManager.CheckIfEndBattle();
         }
     }
 
@@ -318,4 +322,49 @@ public class UI_Controller : MonoBehaviour
             }
         }
     }
+
+
+
+
+    
+    public void HighlightOption(string optionName, GameObject UIMenu)
+    {
+        // Find the parent Options_Menu GameObject
+        //GameObject optionsMenu = GameObject.Find("Options_Menu");
+
+        if (UIMenu == null)
+        {
+            Debug.LogError("Options_Menu not found in the scene.");
+            return;
+        }
+
+        // Loop through all child objects of Options_Menu
+        foreach (Transform child in UIMenu.transform)
+        {
+            // Check if the child name matches the optionName
+            if (child.name == optionName)
+            {
+                // Highlight the selected option (e.g., change color or scale)
+                var textComponent = child.GetComponent<TextMeshProUGUI>();
+                if (textComponent != null)
+                {
+                    textComponent.color = Color.yellow; // Change text color to yellow
+                }
+            }
+            else
+            {
+                // Reset the color of other options
+                var textComponent = child.GetComponent<TextMeshProUGUI>();
+                if (textComponent != null)
+                {
+                    textComponent.color = Color.white; // Change text color to white
+                }
+            }
+        }
+    }
+
+
+
+
+
 }

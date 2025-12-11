@@ -30,20 +30,28 @@ public class TurnBasedBattleSystem : MonoBehaviour
     {
         turnOrder.Clear();
 
-        // Add player's monster to the turn order
-        if (gameManager.playerParty.Count > 0)
+        // Add player's monsters to the turn order
+        foreach (var playerMonster in gameManager.spawnedPlayerMonsters)
         {
-            turnOrder.Add(gameManager.playerParty[0]);
+            turnOrder.Add(playerMonster);
         }
 
         // Add enemy monsters to the turn order
-        foreach (var enemy in gameManager.spawnedEnemies)
+        foreach (var enemyMonster in gameManager.spawnedEnemyMonsters)
         {
-            turnOrder.Add(enemy.monsterData);
+            turnOrder.Add(enemyMonster);
         }
 
         // Sort the turn order by speed in descending order
         turnOrder.Sort((a, b) => b.extra2Info.current_Speed.CompareTo(a.extra2Info.current_Speed));
+
+        // Debugging: Print the turn order with positions
+        Debug.Log("Turn Order:");
+        for (int i = 0; i < turnOrder.Count; i++)
+        {
+            var entity = turnOrder[i];
+            Debug.Log($"{i + 1}: {entity.speciesInfo.name} speed: {entity.extra2Info.current_Speed}");
+        }
     }
 
     private IEnumerator HandleTurn()
@@ -87,18 +95,180 @@ public class TurnBasedBattleSystem : MonoBehaviour
     {
         Debug.Log("Player's turn!");
 
-        uiController.variables.canPlayerInteract = true;
-        Debug.Log("CanInteract: " + uiController.variables.canPlayerInteract);
+        //OPTION MENU CHOOSE AN OPTION
+        yield return StartCoroutine(UI_OptionMenu(playerMonster));
+        
+        
+    }
 
+    
+    private IEnumerator UI_OptionMenu(SpawnedMonster playerMonster)
+    {
+        Debug.Log("Choose an option.");
+        uiController.variables.canPlayerInteract = true;
+        uiController.BattleUI_OptionMenu.SetActive(true);   // Show Option menu
+
+        // List of options in the menu
+        List<string> options = new List<string> { "Fight", "Bag", "Team", "Flee" };
+        int currentSelectionIndex = 0;
+
+        // Highlight the first option by default
+        uiController.HighlightOption(options[currentSelectionIndex], uiController.BattleUI_OptionMenu);
+
+        // Wait for player input
+        bool optionSelected = false;
+
+        while (!optionSelected)
+        {
+            if (Keyboard.current.upArrowKey.wasPressedThisFrame)
+            {
+                // Navigate up in the menu
+                currentSelectionIndex = (currentSelectionIndex - 1 + options.Count) % options.Count;
+                uiController.HighlightOption(options[currentSelectionIndex], uiController.BattleUI_OptionMenu);
+            }
+            else if (Keyboard.current.downArrowKey.wasPressedThisFrame)
+            {
+                // Navigate down in the menu
+                currentSelectionIndex = (currentSelectionIndex + 1) % options.Count;
+                uiController.HighlightOption(options[currentSelectionIndex], uiController.BattleUI_OptionMenu);
+            }
+            else if (Keyboard.current.enterKey.wasPressedThisFrame)
+            {
+                // Confirm selection
+                optionSelected = true;
+                // Hide the option menu and disable player interaction
+                uiController.BattleUI_OptionMenu.SetActive(false);
+                uiController.variables.canPlayerInteract = false;
+            }
+
+            yield return null;
+        }
+
+        
+
+        // Execute the selected option
+        switch (options[currentSelectionIndex])
+        {
+            case "Fight":
+                yield return StartCoroutine(UI_FightMenu(playerMonster));
+                //StartCoroutine(FIGHT_MENU_SELECTED(playerMonster));
+                yield break;
+            case "Bag":
+                Debug.Log("Bag option selected.");
+                // Implement Bag functionality here
+                break;
+            case "Team":
+                Debug.Log("Team option selected.");
+                // Implement Team functionality here
+                break;
+            case "Flee":
+                Debug.Log("Flee option selected.");
+                //gameManager.FleeBattle();
+                yield break;
+            default:
+                Debug.LogWarning("Invalid option selected.");
+                break;
+        }
+
+        yield break;
+    }
+
+
+
+
+    private IEnumerator UI_FightMenu(SpawnedMonster playerMonster)
+    {
+        Debug.Log("Choose a move.");
+        uiController.variables.canPlayerInteract = true;
+        uiController.BattleUI_FightMenu.SetActive(true);   // Show Option menu
+
+        // List of options in the menu
+        List<string> options = new List<string> { "MOVE_SLOT_1", "MOVE_SLOT_2", "MOVE_SLOT_3", "MOVE_SLOT_4" };
+        int currentSelectionIndex = 0;
+
+        PopulateFightMenu(playerMonster.extra1Info);
+        gameManager.SetInitialTarget(); //Highlights the target.
+
+        // Highlight the first option by default
+        uiController.HighlightOption(options[currentSelectionIndex], uiController.BattleUI_FightMenu);
+
+        // Wait for player input
+        bool optionSelected = false;
+        MoveInformation selectedMove = null;
+
+        while (!optionSelected)
+        {
+            if (Keyboard.current.upArrowKey.wasPressedThisFrame)
+            {
+                // Navigate up in the menu
+                currentSelectionIndex = (currentSelectionIndex - 1 + options.Count) % options.Count;
+                uiController.HighlightOption(options[currentSelectionIndex], uiController.BattleUI_FightMenu);
+            }
+            else if (Keyboard.current.downArrowKey.wasPressedThisFrame)
+            {
+                // Navigate down in the menu
+                currentSelectionIndex = (currentSelectionIndex + 1) % options.Count;
+                uiController.HighlightOption(options[currentSelectionIndex], uiController.BattleUI_FightMenu);
+            }
+            else if (Keyboard.current.enterKey.wasPressedThisFrame)
+            {
+                // Confirm selection
+                selectedMove = uiController.GetSelectedMove();
+                
+                // Check if the selected move is not Move.None
+                if (selectedMove != null && selectedMove.move != Move.NONE)
+                {
+                    optionSelected = true;  // Confirm selection
+                }
+                else
+                {
+                    Debug.LogWarning("Invalid move selected. Please choose a valid move.");
+                }
+            }
+            else if (Keyboard.current.bKey.wasPressedThisFrame)
+            {
+                uiController.BattleUI_FightMenu.SetActive(false);
+                yield break;
+            }
+
+            yield return null;
+        }
+
+        uiController.BattleUI_FightMenu.SetActive(false);
+        uiController.variables.canPlayerInteract = false;
+        ExecuteMove(playerMonster, gameManager.selectedTargetIndex, selectedMove);
+        yield break;
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    /*private IEnumerator FIGHT_MENU_SELECTED(SpawnedMonster playerMonster)
+    {
         // Show fight menu
         uiController.BattleUI_FightMenu.SetActive(true);
-
         // Populate fight menu with player's monster moves
         PopulateFightMenu(playerMonster.extra1Info);
-
         //Highlights the target.
         gameManager.SetInitialTarget();
-
+       
         // Wait for player input
         bool moveSelected = false;
         MoveInformation selectedMove = null;
@@ -137,13 +307,19 @@ public class TurnBasedBattleSystem : MonoBehaviour
         // Hide fight menu
         uiController.BattleUI_FightMenu.SetActive(false);
 
-        // Execute the selected move
-        ExecuteMove(playerMonster, gameManager.spawnedEnemies[gameManager.selectedTargetIndex].monsterData, selectedMove);
+        // Execute the selected move using the combined list and selected target index
+        ExecuteMove(playerMonster, gameManager.selectedTargetIndex, selectedMove);
 
         yield return new WaitForSeconds(1f); // Wait for animation or effects
-    }
+    }*/
 
-    private IEnumerator EnemyTurn(SpawnedMonster enemyMonster)
+    
+
+
+
+
+
+    /*private IEnumerator EnemyTurn(SpawnedMonster enemyMonster)
     {
         Debug.Log($"{enemyMonster.speciesInfo.species}'s turn!");
 
@@ -152,6 +328,36 @@ public class TurnBasedBattleSystem : MonoBehaviour
 
         // Execute the selected move
         ExecuteMove(enemyMonster, gameManager.playerParty[0], selectedMove);
+
+        yield return new WaitForSeconds(1f); // Wait for animation or effects
+    }*/
+
+    private IEnumerator EnemyTurn(SpawnedMonster enemyMonster)
+    {
+        Debug.Log($"{enemyMonster.speciesInfo.species}'s turn!");
+
+        // Wait for a short delay to simulate thinking time
+        yield return new WaitForSeconds(1f);
+
+        // Ensure there are valid targets in the spawnedPlayerMonsters list
+        if (gameManager.spawnedPlayerMonsters.Count > 0)
+        {
+            // Randomly select a target from the spawnedPlayerMonsters list
+            int randomIndex = Random.Range(0, gameManager.spawnedPlayerMonsters.Count);
+            SpawnedMonster targetMonster = gameManager.spawnedPlayerMonsters[randomIndex];
+
+            // Randomly select a move
+            MoveInformation selectedMove = SelectRandomMove(enemyMonster.extra1Info);
+
+            // Execute the move on the randomly selected target
+            ExecuteMove(enemyMonster, randomIndex, selectedMove);
+
+            Debug.Log($"{enemyMonster.speciesInfo.species} used {selectedMove.name} on {targetMonster.speciesInfo.species}!");
+        }
+        else
+        {
+            Debug.LogWarning("No player monsters available to attack!");
+        }
 
         yield return new WaitForSeconds(1f); // Wait for animation or effects
     }
@@ -186,7 +392,53 @@ public class TurnBasedBattleSystem : MonoBehaviour
         return moves[Random.Range(0, moves.Count)];
     }
 
-    private void ExecuteMove(SpawnedMonster attacker, SpawnedMonster target, MoveInformation moveInfo)
+    private void ExecuteMove(SpawnedMonster playerMonster, int selectedTargetIndex, MoveInformation selectedMove)
+    {
+        // Get the combined list of targets
+        List<SpawnedMonster> combinedTargets = gameManager.GetCombinedTargetList();
+
+        // Validate the selected target index
+        if (selectedTargetIndex >= 0 && selectedTargetIndex < combinedTargets.Count)
+        {
+            // Get the target monster data from the combined list
+            SpawnedMonster targetMonster = combinedTargets[selectedTargetIndex];
+
+            // Execute the move on the selected target
+            Debug.Log($"{playerMonster.speciesInfo.species} used {selectedMove.name} on {targetMonster.speciesInfo.species}!");
+
+            int damage = selectedMove.damage;
+            int previousHP = targetMonster.extra2Info.current_HP;
+            targetMonster.extra2Info.current_HP -= damage;
+            targetMonster.extra2Info.current_HP = Mathf.Clamp(targetMonster.extra2Info.current_HP, 0, targetMonster.extra2Info.max_HP);
+
+            Debug.Log($"{targetMonster.speciesInfo.species} took {damage} damage! Remaining HP: {targetMonster.extra2Info.current_HP}");
+
+            // Check if the target is defeated
+            if (targetMonster.extra2Info.current_HP <= 0)
+            {
+                Debug.Log($"{targetMonster.speciesInfo.species} fainted!");
+
+                // Remove the defeated monster from the respective list
+                if (gameManager.spawnedEnemyMonsters.Contains(targetMonster))
+                {
+                    gameManager.spawnedEnemyMonsters.Remove(targetMonster);
+                }
+                else if (gameManager.spawnedPlayerMonsters.Contains(targetMonster))
+                {
+                    gameManager.spawnedPlayerMonsters.Remove(targetMonster);
+                }
+
+                // Check if the battle should end
+                gameManager.CheckIfEndBattle();
+            }
+        }
+        else
+        {
+            Debug.LogWarning("Invalid target index! No move executed.");
+        }
+    }
+
+    /*private void ExecuteMove(SpawnedMonster attacker, SpawnedMonster target, MoveInformation moveInfo)
     {
         Debug.Log($"{attacker.speciesInfo.species} used {moveInfo.name}!");
 
@@ -257,7 +509,7 @@ public class TurnBasedBattleSystem : MonoBehaviour
                 gameManager.CheckIfEndBattle();
             }
         }
-    }
+    }*/
 
 
     private MoveInformation GetMoveInformation(Move move)
