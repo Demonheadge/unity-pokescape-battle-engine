@@ -36,8 +36,11 @@ public class UI_Controller : MonoBehaviour
     public GameObject FightMenu_Move_Slot_3;
     public GameObject FightMenu_Move_Slot_4;
 
-    private int selectedMoveIndex = 0; // Tracks the currently selected move in the fight menu
+    public int selectedMoveIndex = 0; // Tracks the currently selected move in the fight menu
     private List<GameObject> fightMenuSlots;
+    private Dictionary<string, int> monsterLastMoveIndex = new Dictionary<string, int>(); // Dictionary to store last move index for each monster
+
+
 
     void Start()
     {
@@ -253,6 +256,30 @@ public class UI_Controller : MonoBehaviour
         }
     }
 
+    public void DebugHighlightedMoveInfo()
+    {
+        // Ensure the selectedMoveIndex is within bounds
+        if (selectedMoveIndex >= 0 && selectedMoveIndex < fightMenuSlots.Count)
+        {
+            // Get the currently highlighted slot
+            GameObject selectedSlot = fightMenuSlots[selectedMoveIndex];
+            MoveSlot moveSlot = selectedSlot.GetComponent<MoveSlot>();
+
+            if (moveSlot != null && moveSlot.moveInfo != null)
+            {
+                // Log the move information
+                Debug.Log($"Highlighted Move Info: {moveSlot.moveInfo.name}");
+            }
+            else
+            {
+                Debug.LogWarning("Highlighted slot does not have a valid MoveSlot component or moveInfo is null!");
+            }
+        }
+        else
+        {
+            Debug.LogWarning("Selected move index is out of bounds!");
+        }
+    }
     
     public void NavigateFightMenu(int direction)
     {
@@ -275,6 +302,7 @@ public class UI_Controller : MonoBehaviour
             MoveSlot moveSlot = fightMenuSlots[selectedMoveIndex].GetComponent<MoveSlot>();
             if (moveSlot != null && moveSlot.moveInfo != null && moveSlot.moveInfo.move != Move.NONE)
             {
+                //DebugHighlightedMoveInfo(); // Debug the highlighted move info
                 break; // Valid move found, exit the loop
             }
         } while (true);
@@ -288,6 +316,7 @@ public class UI_Controller : MonoBehaviour
                 if (i == selectedMoveIndex)
                 {
                     slotText.color = Color.yellow; // Highlight selected slot
+                    
                 }
                 else
                 {
@@ -440,6 +469,59 @@ public class UI_Controller : MonoBehaviour
                 if (textComponent != null)
                 {
                     textComponent.color = Color.white; // Change text color to white
+                }
+            }
+        }
+    }
+
+    public void RememberLastMove(Monster monster, int moveIndex)
+    {
+        if (monster != null)
+        {
+            string monsterId = monster.monsterSpeciesInfo.NICKNAME; // Use the monster's name or unique ID as the key
+            if (monsterLastMoveIndex.ContainsKey(monsterId))
+            {
+                monsterLastMoveIndex[monsterId] = moveIndex; // Update the last move index
+            }
+            else
+            {
+                monsterLastMoveIndex.Add(monsterId, moveIndex); // Add a new entry for the monster
+            }
+        }
+    }
+
+    public void HighlightLastMove(Monster monster)
+    {
+        if (monster != null)
+        {
+            string monsterId = monster.monsterSpeciesInfo.NICKNAME; // Use the monster's name or unique ID as the key
+            if (monsterLastMoveIndex.ContainsKey(monsterId))
+            {
+                selectedMoveIndex = monsterLastMoveIndex[monsterId]; // Retrieve the last move index for the monster
+            }
+            else
+            {
+                selectedMoveIndex = 0; // Default to the first slot if no previous move is found
+            }
+
+            // Highlight the selected move slot
+            for (int i = 0; i < fightMenuSlots.Count; i++)
+            {
+                TextMeshProUGUI slotText = fightMenuSlots[i].GetComponentInChildren<TextMeshProUGUI>();
+                if (slotText != null)
+                {
+                    if (i == selectedMoveIndex)
+                    {
+                        slotText.color = Color.yellow; // Highlight selected slot
+                    }
+                    else
+                    {
+                        slotText.color = Color.white; // Reset color for other slots
+                    }
+                }
+                else
+                {
+                    Debug.LogError($"Fight menu slot {i + 1} does not have a TextMeshProUGUI component!");
                 }
             }
         }

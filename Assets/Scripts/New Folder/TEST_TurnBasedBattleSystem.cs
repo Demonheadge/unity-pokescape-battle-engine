@@ -315,7 +315,6 @@ public class TEST_TurnBasedBattleSystem : MonoBehaviour
         uiController.variables.canPlayerInteract = true;
         uiController.BattleUI_FightMenu.SetActive(true);   // Show Option menu
         
-
         // List of options in the menu
         List<string> options = new List<string> { "MOVE_SLOT_1", "MOVE_SLOT_2", "MOVE_SLOT_3", "MOVE_SLOT_4" };
         int currentSelectionIndex = 0;
@@ -326,6 +325,7 @@ public class TEST_TurnBasedBattleSystem : MonoBehaviour
         // Highlight the first option by default
         
         uiController.HighlightOption(options[currentSelectionIndex], uiController.BattleUI_FightMenu);
+        uiController.HighlightLastMove(playerMonster);
 
         // Wait for player input
         bool optionSelected = false;
@@ -336,14 +336,12 @@ public class TEST_TurnBasedBattleSystem : MonoBehaviour
             if (Keyboard.current.upArrowKey.wasPressedThisFrame)
             {
                 // Navigate up in the menu
-                currentSelectionIndex = (currentSelectionIndex - 1 + options.Count) % options.Count;
-                uiController.HighlightOption(options[currentSelectionIndex], uiController.BattleUI_FightMenu);
+                uiController.NavigateFightMenu(-1);
             }
             else if (Keyboard.current.downArrowKey.wasPressedThisFrame)
             {
                 // Navigate down in the menu
-                currentSelectionIndex = (currentSelectionIndex + 1) % options.Count;
-                uiController.HighlightOption(options[currentSelectionIndex], uiController.BattleUI_FightMenu);
+                uiController.NavigateFightMenu(1);
             }
             else if (Keyboard.current.enterKey.wasPressedThisFrame)
             {
@@ -354,6 +352,10 @@ public class TEST_TurnBasedBattleSystem : MonoBehaviour
                 if (selectedMove != null && selectedMove.move != Move.NONE)
                 {
                     optionSelected = true;  // Confirm selection
+                    // Remember the last move index for the current monster
+                    uiController.RememberLastMove(playerMonster, uiController.selectedMoveIndex);
+
+                    //Debug.LogWarning($"{selectedMove.move}");
                 }
                 else
                 {
@@ -383,16 +385,6 @@ public class TEST_TurnBasedBattleSystem : MonoBehaviour
         //Player Attacks the target
         PlayerAttacks(playerMonster, selectedMove);
 
-
-        // Cast playerMonster to ExtendedSpawnedMonster before passing to ExecuteMove
-        //if (playerMonster is ExtendedSpawnedMonster extendedMonster)
-        //{
-        //    ExecuteMove(extendedMonster, gameManager.selectedTargetIndex, selectedMove);
-        //}
-        //else
-        //{
-        //    Debug.LogError($"Player monster {playerMonster.speciesInfo.name} is not an ExtendedSpawnedMonster!");s
-        //}
         yield break;
     }
 
