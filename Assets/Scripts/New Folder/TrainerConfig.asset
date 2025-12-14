@@ -1,0 +1,31 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 60974aa6d1f2b904584c2e12eb61765a, type: 3}
+  m_Name: TrainerConfig
+  m_EditorClassIdentifier: Assembly-CSharp::TrainerConfig
+  trainerName: Zomgered
+  trainerClass: 9
+  encounterMusic: 1
+  battleMusic: 8
+  trainerPicture: 15
+  aiFlags: 5
+  party:
+  - species: 14
+    nickname: 
+    level: 0
+    moves:
+    - 
+  - species: 14
+    nickname: 
+    level: 0
+    moves:
+    - 

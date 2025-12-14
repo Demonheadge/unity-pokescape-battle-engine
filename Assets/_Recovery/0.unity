@@ -2105,6 +2105,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Test
   gameManager: {fileID: 894757453}
+  test_Generate_Monster: {fileID: 894757457}
   variables: {fileID: 231214833}
   BattleUI: {fileID: 456895583}
   BattleUI_BattleInfo: {fileID: 1387401144}
@@ -3095,6 +3096,7 @@ MonoBehaviour:
   BATTLE_1_VS_2: 0
   BATTLE_2_VS_1: 0
   BATTLE_2_VS_2: 0
+  BATTLE_3_VS_3: 0
   BATTLE_OUTCOME_WON: 0
   BATTLE_OUTCOME_LOST: 0
   BATTLE_OUTCOME_DRAW: 0
@@ -11836,8 +11838,9 @@ GameObject:
   m_Component:
   - component: {fileID: 894757454}
   - component: {fileID: 894757453}
-  - component: {fileID: 894757455}
-  - component: {fileID: 894757456}
+  - component: {fileID: 894757457}
+  - component: {fileID: 894757458}
+  - component: {fileID: 894757459}
   m_Layer: 0
   m_Name: GameManager
   m_TagString: Untagged
@@ -11857,8 +11860,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3e7d86bb73635cb45ad0bcb4eec39b5a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameManager
-  generate_Monster: {fileID: 894757455}
-  TurnbasedSystem: {fileID: 894757456}
+  music_Manager: {fileID: 1909604731}
+  generate_Monster: {fileID: 894757457}
+  TurnbasedSystem: {fileID: 0}
   playerPartySize: 6
   playerParty: []
   variables: {fileID: 231214833}
@@ -11866,15 +11870,12 @@ MonoBehaviour:
   BattleScene: {fileID: 1811483630}
   Background: {fileID: 1849205923}
   currentBattleType: 0
-  enemyMonsterPrefab: {fileID: 8320214355427982697, guid: 705eccd117773e143aa3043229317006, type: 3}
-  playerMonsterPrefab: {fileID: 8320214355427982697, guid: e3d42f1291334d045815fdd14d127f17, type: 3}
-  spawnedEnemies: []
-  selectedTargetIndex: -1
-  MonsterPrefab: {fileID: 8320214355427982697, guid: 4592da3dfc0e23a4ead2dc5a98167c66, type: 3}
   PlayerSide_HowManyMonsters_InBattle: 0
-  spawnedPlayerMonsters: []
   EnemySide_HowManyMonsters_InBattle: 0
+  spawnedPlayerMonsters: []
   spawnedEnemyMonsters: []
+  targetingSystem: {fileID: 894757458}
+  test_TurnBasedBattleSystem: {fileID: 894757459}
 --- !u!4 &894757454
 Transform:
   m_ObjectHideFlags: 0
@@ -11890,7 +11891,7 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &894757455
+--- !u!114 &894757457
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -11899,13 +11900,14 @@ MonoBehaviour:
   m_GameObject: {fileID: 894757452}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: aadde07ab4eb08f4d95f6445c09956b4, type: 3}
+  m_Script: {fileID: 11500000, guid: 98d1b13cdebc2484a952541a6af09334, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Generate_Monster
-  monsterDatabase: {fileID: 11400000, guid: a7dab26f2a2de5747b836e471302d5cc, type: 2}
+  m_EditorClassIdentifier: Assembly-CSharp::Test_Generate_Monster
+  monsterDatabase: {fileID: 11400000, guid: 21496edf469e65141ba1f48a67cdf119, type: 2}
   moveDatabase: {fileID: 11400000, guid: 15283177a2aa7fc48b6bcc2c48a63c2d, type: 2}
   levelUpDatabase: {fileID: 11400000, guid: 9a7869eefc7418e45b841bc633520b29, type: 2}
---- !u!114 &894757456
+  monsterPrefab: {fileID: 7051635493106347607, guid: 2bb82e0590fb41645add7360a01720d5, type: 3}
+--- !u!114 &894757458
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -11914,12 +11916,29 @@ MonoBehaviour:
   m_GameObject: {fileID: 894757452}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5be660d2f30fb074bbe563dacc3ccd5b, type: 3}
+  m_Script: {fileID: 11500000, guid: bd1fef25ab37d3b4cb670ca32c5da850, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::TurnBasedBattleSystem
+  m_EditorClassIdentifier: Assembly-CSharp::TargetingSystem
+  gameManager: {fileID: 894757453}
+  enemyTeam: []
+  playerTeam: []
+  currentTargetIndex: 0
+--- !u!114 &894757459
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 894757452}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7fe6fda541eaf504c86d2d16a2b1ed2c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TEST_TurnBasedBattleSystem
   gameManager: {fileID: 894757453}
   uiController: {fileID: 139460168}
-  moveDatabase: {fileID: 11400000, guid: 15283177a2aa7fc48b6bcc2c48a63c2d, type: 2}
+  targetingSystem: {fileID: 894757458}
+  turnOrder: []
 --- !u!1 &897322951
 GameObject:
   m_ObjectHideFlags: 0
@@ -24403,6 +24422,152 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1902318041}
   m_CullTransparentMesh: 1
+--- !u!1 &1909604730
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1909604733}
+  - component: {fileID: 1909604732}
+  - component: {fileID: 1909604731}
+  m_Layer: 0
+  m_Name: Music_Manager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1909604731
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1909604730}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9d6b0329973abdf49986b8fd6905a53e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BattleMusicTest
+  selectedAreaMusic: 0
+  selectedBattleMusic: 0
+  selectedEncounterMusic: 0
+  selectedFanfareMusic: 0
+--- !u!82 &1909604732
+AudioSource:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1909604730}
+  m_Enabled: 1
+  serializedVersion: 4
+  OutputAudioMixerGroup: {fileID: 0}
+  m_audioClip: {fileID: 0}
+  m_Resource: {fileID: 0}
+  m_PlayOnAwake: 1
+  m_Volume: 1
+  m_Pitch: 1
+  Loop: 0
+  Mute: 0
+  Spatialize: 0
+  SpatializePostEffects: 0
+  Priority: 128
+  DopplerLevel: 1
+  MinDistance: 1
+  MaxDistance: 500
+  Pan2D: 0
+  rolloffMode: 0
+  BypassEffects: 0
+  BypassListenerEffects: 0
+  BypassReverbZones: 0
+  rolloffCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  panLevelCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  spreadCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  reverbZoneMixCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+--- !u!4 &1909604733
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1909604730}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 544.0639, y: 750.3233, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1913451053
 GameObject:
   m_ObjectHideFlags: 0
@@ -79234,6 +79399,7 @@ SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
   - {fileID: 894757454}
+  - {fileID: 1909604733}
   - {fileID: 231214834}
   - {fileID: 139460169}
   - {fileID: 2035206522}

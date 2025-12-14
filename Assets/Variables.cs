@@ -17,11 +17,14 @@ public class Variables : MonoBehaviour
 //BATTLE INFORMATION
     public bool BATTLE_TYPE_WILD_MONSTER;
     public bool BATTLE_TYPE_TRAINER;
+
     //Type of Battle
     public bool BATTLE_1_VS_1;
     public bool BATTLE_1_VS_2;
     public bool BATTLE_2_VS_1;
     public bool BATTLE_2_VS_2;
+    public bool BATTLE_3_VS_3;
+    
     //Battle Outcomes
     public bool BATTLE_OUTCOME_WON;
     public bool BATTLE_OUTCOME_LOST;
@@ -36,6 +39,7 @@ public enum BattleType
     BATTLE_1_VS_2,
     BATTLE_2_VS_1,
     BATTLE_2_VS_2,
+    BATTLE_3_VS_3,
 
     BattleType_1v1,
     BattleType_1v2

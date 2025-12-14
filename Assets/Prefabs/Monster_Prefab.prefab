@@ -48,7 +48,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::EnemyController
   gameManager: {fileID: 0}
   Info_Bar_Updater: {fileID: -6106795427925119414}
-  enemyData:
+  monsterData:
     speciesInfo:
       ID: 0
       species: 0
@@ -113,7 +113,6 @@ MonoBehaviour:
       skill_archaeology: 0
       skill_thieving: 0
       skill_invention: 0
-  duration: 1
 --- !u!212 &-1205773933629824499
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -162,7 +161,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 1
   m_Sprite: {fileID: 4166821680782369677, guid: 1e93c486ff73c894fa00aa925ec66f21, type: 3}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 1, g: 0, b: 0.99149656, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0

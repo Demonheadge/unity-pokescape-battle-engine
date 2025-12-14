@@ -13,7 +13,7 @@ using UnityEngine;
 public class MonsterDataImporterWindow : EditorWindow
 {
     private string csvFilePath = "Assets/Editor/MonsterData.csv"; // Default path to your CSV file
-    private MonsterDatabase monsterDatabase;
+    private TEST_MonsterDatabase monsterDatabase;
 
     [MenuItem("Tools/Monster Data Importer")]
     public static void ShowWindow()
@@ -31,7 +31,7 @@ public class MonsterDataImporterWindow : EditorWindow
 
         // Field to assign the MonsterDatabase ScriptableObject
         EditorGUILayout.LabelField("Monster Database:");
-        monsterDatabase = (MonsterDatabase)EditorGUILayout.ObjectField(monsterDatabase, typeof(MonsterDatabase), false);
+        monsterDatabase = (TEST_MonsterDatabase)EditorGUILayout.ObjectField(monsterDatabase, typeof(TEST_MonsterDatabase), false);
 
         // Import button
         if (GUILayout.Button("Import Monster Data"))
@@ -89,12 +89,12 @@ public class MonsterDataImporterWindow : EditorWindow
             Sprite partyIcon = FindSprite(species.ToString(), "icon.png");
 
             // Create and add the monster to the database
-            SpeciesInfo monsterInfo = new SpeciesInfo
+            Monster.SpeciesInfo monsterInfo = new Monster.SpeciesInfo
             {
                 ID = id,
-                species = species,
-                name = name,
-                type = type,
+                SPECIES = species,
+                NICKNAME = name,
+                TYPE = type,
                 baseHP = baseHP,
                 baseSpeed = baseSpeed,
                 baseAttack_Melee = baseAttack_Melee,
@@ -138,7 +138,7 @@ public class MonsterDataImporterWindow : EditorWindow
             return default; // Default value for MonsterType
         }
 
-        if (System.Enum.TryParse(value, out MonsterType type))
+        if (System.Enum.TryParse(value.ToUpper(), out MonsterType type))
         {
             return type;
         }

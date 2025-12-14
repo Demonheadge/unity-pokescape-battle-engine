@@ -5,6 +5,118 @@ using System;
 using UnityEditor;
 using UnityEngine;
 
+
+[System.Serializable]
+public class Monster
+{
+    public GameObject Monster_GameObject;       // Assigns the GameObject.
+    public SpeciesInfo monsterSpeciesInfo;          // Holds the species information
+    public Moves monsterMoves;                    // Holds the moves information
+    public Statistics monsterStatistics;               // Holds the stats and level information
+    public Skills monsterSkills;                   // Holds the skill information
+
+    [System.Serializable]
+    public class SpeciesInfo
+    {
+        public int ID;
+        public Species SPECIES;
+        public string NICKNAME;         //Default to species.tostring() name if nickname is null.
+        public MonsterType TYPE;
+    //stats
+        public int baseHP;
+        public int baseSpeed;
+    //attack
+        public int baseAttack_Melee;
+        public int baseAttack_Ranged;
+        public int baseAttack_Magic;
+    //defense
+        public int baseDefense_Melee;
+        public int baseDefense_Ranged;
+        public int baseDefense_Magic;
+    //sprites
+        public Sprite front_sprite;
+        public Sprite back_sprite;
+        public Sprite partyicon;
+        //list of all moves the moster can learn in its entirety.
+    }
+
+    [System.Serializable]
+    public class Moves
+    {
+        public Move MOVE_1;
+        public Move MOVE_2;
+        public Move MOVE_3;
+        public Move MOVE_4;
+        //List of all moves monster knows by x level.
+    }
+
+    [System.Serializable]
+    public class Statistics
+    {
+        public int experience;
+        public int level;
+    //stats
+        public int max_HP;
+        public int current_HP;
+        public int current_Speed;
+    //attack
+        public int current_Attack_Melee;
+        public int current_Attack_Ranged;
+        public int current_Attack_Magic;
+    //defense
+        public int current_Defense_Melee;
+        public int current_Defense_Ranged;
+        public int current_Defense_Magic;
+    }
+
+    [System.Serializable]
+    public class Skills
+    {
+    //Skills
+        public int skill_attack;
+        public int skill_defense;
+        public int skill_strength;
+        public int skill_magic;
+        public int skill_ranged;
+        public int skill_necromancy;
+        public int skill_prayer;
+        public int skill_summoning;
+        public int skill_hitpoints;
+        public int skill_slayer;
+        public int skill_agility;
+        public int skill_mining;
+        public int skill_smithing;
+        public int skill_fishing;
+        public int skill_woodcutting;
+        public int skill_cooking;
+        public int skill_fletching;
+        public int skill_crafting;
+        public int skill_firemaking;
+        public int skill_runecrafting;
+        public int skill_dungeoneering;
+        public int skill_sailing;
+        public int skill_herblore;
+        public int skill_farming;
+        public int skill_construction;
+        public int skill_divination;
+        public int skill_hunter;
+        public int skill_archaeology;
+        public int skill_thieving;
+        public int skill_invention;
+    }
+
+}
+
+
+
+
+
+
+
+
+
+
+
 [System.Serializable]
 public class SpeciesInfo
 {
@@ -111,6 +223,36 @@ public class SpawnedMonster
         this.extra3Info = extra3Info;
     }
 }
+
+
+public class ExtendedSpawnedMonster : SpawnedMonster
+{
+    public GameObject associatedGameObject;
+
+    public ExtendedSpawnedMonster(GameObject associatedGameObject, SpeciesInfo speciesInfo, Extra_1_Monster_Info extra1Info, Extra_2_Monster_Info extra2Info, Extra_3_Monster_Info extra3Info)
+        : base(speciesInfo, extra1Info, extra2Info, extra3Info)
+    {
+        this.associatedGameObject = associatedGameObject;
+    }
+
+    // Add the TakeDamage method
+    public void TakeDamage(int damage)
+    {
+        extra2Info.current_HP -= damage;
+
+        if (extra2Info.current_HP <= 0)
+        {
+            extra2Info.current_HP = 0;
+            Debug.Log($"{speciesInfo.name} has fainted!");
+            // Handle faint logic here (e.g., remove from battle, play faint animation, etc.)
+        }
+        else
+        {
+            Debug.Log($"{speciesInfo.name} took {damage} damage! Current HP: {extra2Info.current_HP}/{extra2Info.max_HP}");
+        }
+    }
+}
+
 
 public enum MonsterType
 {

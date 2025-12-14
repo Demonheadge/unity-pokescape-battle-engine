@@ -112,9 +112,14 @@ public class Generate_Monster : MonoBehaviour
             current_Defense_Magic = ((2 * randomMonster.baseDefense_Magic + (def_magic_iv_total / 4)) * calculatedLevel) / 100, 
         };
 
-        SpawnedMonster spawnedMonster = new SpawnedMonster(randomMonster, extra1Info, extra2Info, extra3Info);
-        
-        return spawnedMonster;
+        ExtendedSpawnedMonster extendedMonster = new ExtendedSpawnedMonster(
+            null, // GameObject will be assigned later during instantiation
+            randomMonster,
+            extra1Info,
+            extra2Info,
+            extra3Info
+        );
+        return extendedMonster;
     }
 
 

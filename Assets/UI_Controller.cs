@@ -10,6 +10,7 @@ using TMPro;
 public class UI_Controller : MonoBehaviour
 {
     public GameManager gameManager; // Reference to the GameManager
+    public Test_Generate_Monster test_Generate_Monster; 
     public Variables variables;
 
     public GameObject BattleUI;
@@ -90,7 +91,7 @@ public class UI_Controller : MonoBehaviour
 
                 if (Keyboard.current.oKey.wasPressedThisFrame)
                 {
-                    gameManager.SwapMonstersInParty(0, 1); // Swaps the first and second monsters in the party
+                    //gameManager.SwapMonstersInParty(0, 1); // Swaps the first and second monsters in the party
                 }
             }
         }
@@ -105,24 +106,36 @@ public class UI_Controller : MonoBehaviour
 
         if (variables.isInABattle)
         {
-            if (Keyboard.current.uKey.wasPressedThisFrame && gameManager.variables.canPlayerInteract)
+            //if (Keyboard.current.sKey.wasPressedThisFrame )//&& gameManager.variables.canPlayerInteract)
+            //{
+            //    gameManager.targetingSystem.SelectNextTarget();
+            //}
+            //else if (Keyboard.current.aKey.wasPressedThisFrame )//&& gameManager.variables.canPlayerInteract)
+            //{
+            //    gameManager.targetingSystem.SelectPreviousTarget();
+            //}
+            if (Keyboard.current.spaceKey.wasPressedThisFrame )//&& gameManager.variables.canPlayerInteract)
             {
-                gameManager.SwapTarget();
+                GameObject currentTarget = gameManager.targetingSystem.GetCurrentTarget();
+                if (currentTarget != null)
+                {
+                    Debug.Log($"Current target is: {currentTarget.name}");
+                }
             }
 
             // Check if the I key is pressed to deal damage to the selected target
-            if (Keyboard.current.iKey.wasPressedThisFrame && gameManager.variables.canPlayerInteract)
-            {
-                gameManager.variables.canPlayerInteract = false;
-                Debug.Log("CanInteract: " + gameManager.variables.canPlayerInteract);
-
-                // Deal damage to the selected target
-                if (gameManager.spawnedEnemies.Count > 0)
-                {
-                    MonsterController selectedEnemy = gameManager.spawnedEnemies[gameManager.selectedTargetIndex];
-                    selectedEnemy.TakeDamage(1000);
-                }
-            }
+            //if (Keyboard.current.iKey.wasPressedThisFrame && gameManager.variables.canPlayerInteract)
+            //{
+            //    gameManager.variables.canPlayerInteract = false;
+            //    Debug.Log("CanInteract: " + gameManager.variables.canPlayerInteract);
+//
+            //    // Deal damage to the selected target
+            //    if (gameManager.spawnedEnemies.Count > 0)
+            //    {
+            //        MonsterController selectedEnemy = gameManager.spawnedEnemies[gameManager.selectedTargetIndex];
+            //        selectedEnemy.TakeDamage(1000);
+            //    }
+            //}
         }
     }
 
@@ -288,7 +301,76 @@ public class UI_Controller : MonoBehaviour
         }
     }
 
-    // New method: GetSelectedMove
+    public MoveInformation GetMoveInformation(Move move)
+    {
+        if (test_Generate_Monster.moveDatabase == null)
+        {
+            Debug.LogError("MoveDatabase is not assigned in TurnBasedBattleSystem!");
+            return null;
+        }
+
+        if (test_Generate_Monster.moveDatabase.moves == null || test_Generate_Monster.moveDatabase.moves.Count == 0)
+        {
+            Debug.LogError("MoveDatabase does not contain any moves!");
+            return null;
+        }
+
+        foreach (MoveInformation moveInfo in test_Generate_Monster.moveDatabase.moves)
+        {
+            if (moveInfo.move == move)
+            {
+                return moveInfo;
+            }
+        }
+
+        Debug.LogError($"Move {move} not found in the MoveDatabase!");
+        return null;
+    }
+
+    public void PopulateFightMenu(Monster.Moves monsterMoves)
+    {
+        // Assign move information to each fight menu slot
+        AssignMoveToSlot(FightMenu_Move_Slot_1, GetMoveInformation(monsterMoves.MOVE_1));
+        AssignMoveToSlot(FightMenu_Move_Slot_2, GetMoveInformation(monsterMoves.MOVE_2));
+        AssignMoveToSlot(FightMenu_Move_Slot_3, GetMoveInformation(monsterMoves.MOVE_3));
+        AssignMoveToSlot(FightMenu_Move_Slot_4, GetMoveInformation(monsterMoves.MOVE_4));
+    }
+    
+    private void AssignMoveToSlot(GameObject slot, MoveInformation moveInfo)
+    {
+        // Assign the move information to the MoveSlot component
+        MoveSlot moveSlot = slot.GetComponent<MoveSlot>();
+        if (moveSlot != null)
+        {
+            moveSlot.moveInfo = moveInfo;
+
+            // Update the TextMeshProUGUI text with the move name
+            TextMeshProUGUI slotText = slot.GetComponentInChildren<TextMeshProUGUI>();
+            if (slotText != null && moveInfo != null)
+            {
+                if (moveInfo.move != Move.NONE)
+                {
+                    slotText.text = moveInfo.name;
+                }
+                else
+                {
+                    slotText.text = "Unavailable"; // Display "Unavailable" for Move.None
+                    moveSlot.moveInfo = null; // Prevent selection of this move
+                }
+            }
+            else
+            {
+                Debug.LogError("Move slot does not have a TextMeshProUGUI component or moveInfo is null!");
+            }
+        }
+        else
+        {
+            Debug.LogError("MoveSlot component is missing on the fight menu slot!");
+        }
+    }
+
+
+
     public MoveInformation GetSelectedMove()
     {
         // Get the MoveInformation from the currently selected move slot
@@ -366,5 +448,7 @@ public class UI_Controller : MonoBehaviour
 
 
 
+
+    
 
 }

@@ -13,26 +13,26 @@ using UnityEngine.InputSystem;
 public class GameManager : MonoBehaviour
 {
     public static GameManager Instance { get; private set; }
-
-    public Generate_Monster generate_Monster;
+    public Music_Manager music_Manager;
+    public Test_Generate_Monster generate_Monster;
     public TurnBasedBattleSystem TurnbasedSystem;
     
     public int playerPartySize = 6; //Max amount of monsters allowed in the players party.
-    public List<SpawnedMonster> playerParty = new List<SpawnedMonster>();
+    public List<Monster> playerParty = new List<Monster>();
     
     public Variables variables;
     public UI_Controller UI_controller;
     public GameObject BattleScene;
     public GameObject Background;
     public BattleType currentBattleType;
-    public GameObject enemyMonsterPrefab; // Prefab for the enemy monster
-    public GameObject playerMonsterPrefab; // Prefab for the enemy monster
-    private GameObject playerMonsterInstance;
-    private GameObject currentEnemy;
-    private GameObject secondEnemy;
-    private Vector3 SpawnPoint;
-    public List<MonsterController> spawnedEnemies = new List<MonsterController>(); // Correctly define the list to store MonsterController instances
-    public int selectedTargetIndex = -1; // Index of the currently selected target
+    //public GameObject enemyMonsterPrefab; // Prefab for the enemy monster
+    //public GameObject playerMonsterPrefab; // Prefab for the enemy monster
+    //private GameObject playerMonsterInstance;
+    //private GameObject currentEnemy;
+    //private GameObject secondEnemy;
+    //private Vector3 SpawnPoint;
+    //public List<MonsterController> spawnedEnemies = new List<MonsterController>(); // Correctly define the list to store MonsterController instances
+    //public int selectedTargetIndex = -1; // Index of the currently selected target
 
     
 
@@ -106,9 +106,9 @@ public class GameManager : MonoBehaviour
         }
     }*/
 
-    public void RemoveEnemy(MonsterController enemy)
+    /*public void RemoveEnemy(MonsterController enemy)
     {
-        if (spawnedEnemies.Contains(enemy))
+        if (spawnedEnemy.Contains(enemy))
         {
             int removedIndex = spawnedEnemies.IndexOf(enemy);
             spawnedEnemies.Remove(enemy);
@@ -132,7 +132,7 @@ public class GameManager : MonoBehaviour
                 selectedTargetIndex--; // Adjust index if a preceding enemy was removed
             }
         }
-    }
+    }*/
 
     public void AddMonsterToParty()
     {
@@ -142,7 +142,7 @@ public class GameManager : MonoBehaviour
             return;
         }
         // Call SpawnMonster and get the returned SpawnedMonster object
-        SpawnedMonster newMonster = generate_Monster.SpawnMonster();
+        Monster newMonster = generate_Monster.CreateMonster();
         playerParty.Add(newMonster);
 
         // Update Party_Slot
@@ -170,7 +170,7 @@ public class GameManager : MonoBehaviour
     }
 
 
-    private void UpdatePartySlotUI(GameObject slot, SpawnedMonster monster)
+    private void UpdatePartySlotUI(GameObject slot, Monster monster)
     {
         TextMeshProUGUI[] texts = slot.GetComponentsInChildren<TextMeshProUGUI>();
         foreach (var text in texts)
@@ -181,185 +181,185 @@ public class GameManager : MonoBehaviour
                 ///Base Species Info
                 //attack
                 case "base_hp":
-                    text.text = "Species HP: " + monster.speciesInfo.baseHP;
+                    text.text = "Species HP: " + monster.monsterSpeciesInfo.baseHP;
                     break;
                 case "base_speed":
-                    text.text = "Species Speed: " + monster.speciesInfo.baseSpeed;
+                    text.text = "Species Speed: " + monster.monsterSpeciesInfo.baseSpeed;
                     break;
                 case "base_attack_MELEE":
-                    text.text = "Species Melee (atk): " + monster.speciesInfo.baseAttack_Melee;
+                    text.text = "Species Melee (atk): " + monster.monsterSpeciesInfo.baseAttack_Melee;
                     break;
                 case "base_attack_RANGED":
-                    text.text = "Species Ranged (atk): " + monster.speciesInfo.baseAttack_Ranged;
+                    text.text = "Species Ranged (atk): " + monster.monsterSpeciesInfo.baseAttack_Ranged;
                     break;
                 case "base_attack_MAGIC":
-                    text.text = "Species Magic (atk): " + monster.speciesInfo.baseAttack_Magic;
+                    text.text = "Species Magic (atk): " + monster.monsterSpeciesInfo.baseAttack_Magic;
                     break;
                 //defense
                 case "base_defense_MELEE":
-                    text.text = "Species Melee (def): " + monster.speciesInfo.baseDefense_Melee;
+                    text.text = "Species Melee (def): " + monster.monsterSpeciesInfo.baseDefense_Melee;
                     break;
                 case "base_defense_RANGED":
-                    text.text = "Species Ranged (def): " + monster.speciesInfo.baseDefense_Ranged;
+                    text.text = "Species Ranged (def): " + monster.monsterSpeciesInfo.baseDefense_Ranged;
                     break;
                 case "base_defense_MAGIC":
-                    text.text = "Species Magic (def): " + monster.speciesInfo.baseDefense_Magic;
+                    text.text = "Species Magic (def): " + monster.monsterSpeciesInfo.baseDefense_Magic;
                     break;
                 ///
                 case "Species":
-                    text.text = monster.speciesInfo.species.ToString();
+                    text.text = monster.monsterSpeciesInfo.SPECIES.ToString();
                     break;
                 case "ID":
-                    text.text = monster.speciesInfo.ID.ToString();
+                    text.text = monster.monsterSpeciesInfo.ID.ToString();
                     break;
                 case "Nickname":
-                    if (monster.speciesInfo.name == null)
+                    if (monster.monsterSpeciesInfo.NICKNAME == null)
                     {
-                        text.text = monster.speciesInfo.species.ToString();
+                        text.text = monster.monsterSpeciesInfo.SPECIES.ToString();
                     }
                     else
                     {
-                        text.text = monster.speciesInfo.name;
+                        text.text = monster.monsterSpeciesInfo.NICKNAME;
                     }
                     break;
                 case "Type":
-                    text.text = "Type: " + monster.speciesInfo.type;
+                    text.text = "Type: " + monster.monsterSpeciesInfo.TYPE;
                     break;
                 case "Level":
-                    text.text = "Level: " + monster.extra2Info.level;
+                    text.text = "Level: " + monster.monsterStatistics.level;
                     break;
                 case "Experience":
-                    text.text = "EXP: " + monster.extra2Info.experience;
+                    text.text = "EXP: " + monster.monsterStatistics.experience;
                     break;
                 case "Current_HP":
-                    text.text = "HP: " + monster.extra2Info.current_HP + " / " + monster.extra2Info.max_HP;
+                    text.text = "HP: " + monster.monsterStatistics.current_HP + " / " + monster.monsterStatistics.max_HP;
                     break;
                 case "SPEED":
-                    text.text = "Speed / Agility: " + monster.extra2Info.current_Speed;
+                    text.text = "Speed / Agility: " + monster.monsterStatistics.current_Speed;
                     break;
                 //attack
                 case "attack_MELEE":
-                    text.text = "Melee: " + monster.extra2Info.current_Attack_Melee;
+                    text.text = "Melee: " + monster.monsterStatistics.current_Attack_Melee;
                     break;
                 case "attack_RANGED":
-                    text.text = "Ranged: " + monster.extra2Info.current_Attack_Ranged;
+                    text.text = "Ranged: " + monster.monsterStatistics.current_Attack_Ranged;
                     break;
                 case "attack_MAGIC":
-                    text.text = "Magic: " + monster.extra2Info.current_Attack_Magic;
+                    text.text = "Magic: " + monster.monsterStatistics.current_Attack_Magic;
                     break;
                 //defense
                 case "defense_MELEE":
-                    text.text = "Melee: " + monster.extra2Info.current_Defense_Melee;
+                    text.text = "Melee: " + monster.monsterStatistics.current_Defense_Melee;
                     break;
                 case "defense_RANGED":
-                    text.text = "Ranged: " + monster.extra2Info.current_Defense_Ranged;
+                    text.text = "Ranged: " + monster.monsterStatistics.current_Defense_Ranged;
                     break;
                 case "defense_MAGIC":
-                    text.text = "Magic: " + monster.extra2Info.current_Defense_Magic;
+                    text.text = "Magic: " + monster.monsterStatistics.current_Defense_Magic;
                     break;
                 //Moves
                 case "MOVE_SLOT_1":
-                    text.text = monster.extra1Info.move_1.ToString();
+                    text.text = monster.monsterMoves.MOVE_1.ToString();
                     break;
                 case "MOVE_SLOT_2":
-                    text.text = monster.extra1Info.move_2.ToString();
+                    text.text = monster.monsterMoves.MOVE_2.ToString();
                     break;
                 case "MOVE_SLOT_3":
-                    text.text = monster.extra1Info.move_3.ToString();
+                    text.text = monster.monsterMoves.MOVE_3.ToString();
                     break;
                 case "MOVE_SLOT_4":
-                    text.text = monster.extra1Info.move_4.ToString();
+                    text.text = monster.monsterMoves.MOVE_4.ToString();
                     break;
                 //Skills
                 case "Attack":
-                    text.text = "Attack: " + monster.extra3Info.skill_attack;
+                    text.text = "Attack: " + monster.monsterSkills.skill_attack;
                     break;
                 case "Defense":
-                    text.text = "Defence: " + monster.extra3Info.skill_defense;
+                    text.text = "Defence: " + monster.monsterSkills.skill_defense;
                     break;
                 case "Strength":
-                    text.text = "Strength: " + monster.extra3Info.skill_strength;
+                    text.text = "Strength: " + monster.monsterSkills.skill_strength;
                     break;
                 case "Magic":
-                    text.text = "Magic: " + monster.extra3Info.skill_magic;
+                    text.text = "Magic: " + monster.monsterSkills.skill_magic;
                     break;
                 case "Ranged":
-                    text.text = "Ranged: " + monster.extra3Info.skill_ranged;
+                    text.text = "Ranged: " + monster.monsterSkills.skill_ranged;
                     break;
                 case "Necromancy":
-                    text.text = "Necromancy: " + monster.extra3Info.skill_necromancy;
+                    text.text = "Necromancy: " + monster.monsterSkills.skill_necromancy;
                     break;
                 case "Prayer":
-                    text.text = "Prayer: " + monster.extra3Info.skill_prayer;
+                    text.text = "Prayer: " + monster.monsterSkills.skill_prayer;
                     break;
                 case "Summoning":
-                    text.text = "Summoning: " + monster.extra3Info.skill_summoning;
+                    text.text = "Summoning: " + monster.monsterSkills.skill_summoning;
                     break;
                 case "Hitpoints":
-                    text.text = "Hitpoints: " + monster.extra3Info.skill_hitpoints;
+                    text.text = "Hitpoints: " + monster.monsterSkills.skill_hitpoints;
                     break;
                 case "Slayer":
-                    text.text = "Slayer: " + monster.extra3Info.skill_slayer;
+                    text.text = "Slayer: " + monster.monsterSkills.skill_slayer;
                     break;
                 case "Mining":
-                    text.text = "Mining: " + monster.extra3Info.skill_mining;
+                    text.text = "Mining: " + monster.monsterSkills.skill_mining;
                     break;
                 case "Smithing":
-                    text.text = "Smithing: " + monster.extra3Info.skill_smithing;
+                    text.text = "Smithing: " + monster.monsterSkills.skill_smithing;
                     break;
                 case "Fishing":
-                    text.text = "Fishing: " + monster.extra3Info.skill_fishing;
+                    text.text = "Fishing: " + monster.monsterSkills.skill_fishing;
                     break;
                 case "Fletching":
-                    text.text = "Fletching: " + monster.extra3Info.skill_fletching;
+                    text.text = "Fletching: " + monster.monsterSkills.skill_fletching;
                     break;
                 case "Cooking":
-                    text.text = "Cooking: " + monster.extra3Info.skill_cooking;
+                    text.text = "Cooking: " + monster.monsterSkills.skill_cooking;
                     break;
                 case "Woodcutting":
-                    text.text = "Woodcutting: " + monster.extra3Info.skill_woodcutting;
+                    text.text = "Woodcutting: " + monster.monsterSkills.skill_woodcutting;
                     break;
                 case "Crafting":
-                    text.text = "Crafting: " + monster.extra3Info.skill_crafting;
+                    text.text = "Crafting: " + monster.monsterSkills.skill_crafting;
                     break;
                 case "Firemaking":
-                    text.text = "Firemaking: " + monster.extra3Info.skill_firemaking;
+                    text.text = "Firemaking: " + monster.monsterSkills.skill_firemaking;
                     break;
                 case "Runecrafting":
-                    text.text = "Runecrafting: " + monster.extra3Info.skill_runecrafting;
+                    text.text = "Runecrafting: " + monster.monsterSkills.skill_runecrafting;
                     break;
                 case "Dungeoneering":
-                    text.text = "Dungeoneering: " + monster.extra3Info.skill_dungeoneering;
+                    text.text = "Dungeoneering: " + monster.monsterSkills.skill_dungeoneering;
                     break;
                 case "Sailing":
-                    text.text = "Sailing: " + monster.extra3Info.skill_sailing;
+                    text.text = "Sailing: " + monster.monsterSkills.skill_sailing;
                     break;
                 case "Herblore":
-                    text.text = "Herblore: " + monster.extra3Info.skill_herblore;
+                    text.text = "Herblore: " + monster.monsterSkills.skill_herblore;
                     break;
                 case "Farming":
-                    text.text = "Farming: " + monster.extra3Info.skill_farming;
+                    text.text = "Farming: " + monster.monsterSkills.skill_farming;
                     break;
                 case "Construction":
-                    text.text = "Construction: " + monster.extra3Info.skill_construction;
+                    text.text = "Construction: " + monster.monsterSkills.skill_construction;
                     break;
                 case "Divination":
-                    text.text = "Divination: " + monster.extra3Info.skill_divination;
+                    text.text = "Divination: " + monster.monsterSkills.skill_divination;
                     break;
                 case "Hunter":
-                    text.text = "Hunter: " + monster.extra3Info.skill_hunter;
+                    text.text = "Hunter: " + monster.monsterSkills.skill_hunter;
                     break;
                 case "Invention":
-                    text.text = "Invention: " + monster.extra3Info.skill_invention;
+                    text.text = "Invention: " + monster.monsterSkills.skill_invention;
                     break;
                 case "Archaeology":
-                    text.text = "Archaeology: " + monster.extra3Info.skill_archaeology;
+                    text.text = "Archaeology: " + monster.monsterSkills.skill_archaeology;
                     break;
                 case "Thieving":
-                    text.text = "Thieving: " + monster.extra3Info.skill_thieving;
+                    text.text = "Thieving: " + monster.monsterSkills.skill_thieving;
                     break;
                 case "Agility":
-                    text.text = "Agility: " + monster.extra3Info.skill_agility;
+                    text.text = "Agility: " + monster.monsterSkills.skill_agility;
                     break;
             }
         }
@@ -370,22 +370,22 @@ public class GameManager : MonoBehaviour
             switch (image.name)
             {
                 case "Front_Sprite":
-                    image.sprite = monster.speciesInfo.front_sprite;
+                    image.sprite = monster.monsterSpeciesInfo.front_sprite;
                     image.preserveAspect = true; // Ensure the aspect ratio is preserved
                     break;
                 case "Back_Sprite":
-                    image.sprite = monster.speciesInfo.back_sprite;
+                    image.sprite = monster.monsterSpeciesInfo.back_sprite;
                     image.preserveAspect = true; // Ensure the aspect ratio is preserved
                     break;
                 case "PartyIcon":
-                    image.sprite = monster.speciesInfo.partyicon;
+                    image.sprite = monster.monsterSpeciesInfo.partyicon;
                     image.preserveAspect = true; // Ensure the aspect ratio is preserved
                     break;
             }
         }
     }
 
-    public void StartBattle()
+    /*public void StartBattle()
     {
         if (playerParty.Count == 0)
         {
@@ -420,9 +420,9 @@ public class GameManager : MonoBehaviour
                 Debug.LogError("Unknown battle type!");
                 break;
         }
-    }
+    }*/
 
-    private void SendOutPlayersMonster(SpawnedMonster monster)
+    /*private void SendOutPlayersMonster(SpawnedMonster monster)
     {
         SpawnPoint = new Vector3(0.1f, 0.1f, 0f);  //Set the spawn position.
         playerMonsterInstance = Instantiate(enemyMonsterPrefab, SpawnPoint, Quaternion.identity);
@@ -438,9 +438,9 @@ public class GameManager : MonoBehaviour
         {
             Debug.LogError("MonsterController component is missing on the Monster_Prefab!");
         }
-    }
+    }*/
 
-    private void HandleSendOutMonsterText(SpawnedMonster monster)
+    /*private void HandleSendOutMonsterText(SpawnedMonster monster)
     {
         Debug.Log($"Player's monster {monster.speciesInfo.species} has been sent out!");
         UI_controller.BattleUI_EncounterText.gameObject.SetActive(true);
@@ -454,10 +454,10 @@ public class GameManager : MonoBehaviour
                     break;
             }
         }
-    }
+    }*/
 
 
-    public void Start1v1Battle()
+    /*public void Start1v1Battle()
     {
         // Spawn one enemy
         SpawnPoint = new Vector3(2.1f, 0.9f, 0f);  //Set the spawn position.
@@ -574,7 +574,7 @@ public class GameManager : MonoBehaviour
         {
             Debug.LogError("Player's party is empty! No monster to send out.");
         }
-    }
+    }*/
 
 
 
@@ -599,11 +599,11 @@ public class GameManager : MonoBehaviour
             bool allPlayerMonstersDefeated = true;
             foreach (var playerMonster in spawnedPlayerMonsters)
             {
-                if (playerMonster.extra2Info.current_HP > 0)
+                /*if (playerMonster.extra2Info.current_HP > 0)
                 {
                     allPlayerMonstersDefeated = false;
                     break;
-                }
+                }*/
             }
 
             if (allPlayerMonstersDefeated)
@@ -635,7 +635,7 @@ public class GameManager : MonoBehaviour
         spawnedPlayerMonsters.Clear();
 
         // Clear combined targets list
-        combinedTargets.Clear();
+        //combinedTargets.Clear();
         
 
         Debug.Log("All monsters have been removed from the field.");
@@ -736,7 +736,7 @@ public class GameManager : MonoBehaviour
     
 
 
-
+/*
     public void SwapMonstersInParty(int index1, int index2)
     {
         // Validate indices
@@ -747,7 +747,7 @@ public class GameManager : MonoBehaviour
         }
 
         // Swap the monsters in the playerParty list
-        SpawnedMonster temp = playerParty[index1];
+        Monster temp = playerParty[index1];
         playerParty[index1] = playerParty[index2];
         playerParty[index2] = temp;
 
@@ -768,6 +768,7 @@ public class GameManager : MonoBehaviour
             Debug.LogError("UI_controller is not assigned.");
         }
     }
+*/
 
 
 
@@ -804,18 +805,21 @@ public class GameManager : MonoBehaviour
 ////NEW CODE
 
 
-    public GameObject MonsterPrefab; // Prefab for the enemy monster
+    //public GameObject MonsterPrefab; // Prefab for the enemy monster
     public int PlayerSide_HowManyMonsters_InBattle; // Number of monsters to send out in battle
-    public List<SpawnedMonster> spawnedPlayerMonsters; // List to keep track of spawned player monsters
     public int EnemySide_HowManyMonsters_InBattle; // Number of monsters to send out in battle
-    public List<SpawnedMonster> spawnedEnemyMonsters; // List to keep track of spawned enemy monsters
-    public List<SpawnedMonster> combinedTargets;
+    public List<Monster> spawnedPlayerMonsters; // List to keep track of spawned player monsters
+    public List<Monster> spawnedEnemyMonsters; // List to keep track of spawned enemy monsters
+    //public List<Monster> combinedTargets = new List<Monster>();
+    public TargetingSystem targetingSystem;
+    public TEST_TurnBasedBattleSystem test_TurnBasedBattleSystem;
+    
 
     public void Trigger_WildEncounter()
     {
-        Debug.Log("You encounter a wild monster in the grass!");
+        Debug.Log("You attempted a Wild Encounter Battle!");
         variables.BATTLE_TYPE_WILD_MONSTER = true;
-        currentBattleType = BattleType.BATTLE_2_VS_2;
+        currentBattleType = BattleType.BATTLE_3_VS_3;
         BattleSetup();
     }
 
@@ -876,6 +880,11 @@ public class GameManager : MonoBehaviour
                 EnemySide_HowManyMonsters_InBattle = 2;
                 Debug.Log($"{BattleType.BATTLE_2_VS_2}");
                 break;
+            case BattleType.BATTLE_3_VS_3:
+                PlayerSide_HowManyMonsters_InBattle = 3;
+                EnemySide_HowManyMonsters_InBattle = 3;
+                Debug.Log($"{BattleType.BATTLE_3_VS_3}");
+                break;
             default:
                 Debug.LogError("Unknown battle type!");
                 break;
@@ -886,7 +895,9 @@ public class GameManager : MonoBehaviour
         yield return StartCoroutine(Handle_SendOutMonsterText(spawnedPlayerMonsters));
         
         //SetInitialTarget(); // Set the initial target to the first monster in the list when the battle begins
-        TurnbasedSystem.BeginTurns();
+        //TurnbasedSystem.BeginTurns();
+
+        test_TurnBasedBattleSystem.BeginTurns();
 
     }
 
@@ -923,41 +934,23 @@ public class GameManager : MonoBehaviour
 
         for (int i = 0; i < monstersToSendOut; i++)
         {
-            SpawnedMonster monsterToSendOut = playerParty[i];
-
-            // Instantiate the monster's GameObject in the scene
-            GameObject monsterGameObject = Instantiate(MonsterPrefab, GetSpawnPosition(i, 0f, 0f), Quaternion.identity);
-
-            // Flip the sprite horizontally
-            SpriteRenderer spriteRenderer = monsterGameObject.GetComponent<SpriteRenderer>();
-            if (spriteRenderer != null)
-            {
-                spriteRenderer.flipX = true; // Flip the sprite horizontally
-            }
-            else
-            {
-                Debug.LogError("SpriteRenderer component is missing on the instantiated monster prefab!");
-            }
-            
-            // Add the instantiated monster to the spawnedPlayerMonsters list
-            MonsterController monsterController = monsterGameObject.GetComponent<MonsterController>();
-            if (monsterController != null)
-            {
-                monsterController.monsterData = monsterToSendOut;
-                spawnedPlayerMonsters.Add(monsterController.monsterData);
-                Debug.Log($"Player's monster {monsterController.monsterData.speciesInfo.species} has been sent out!");
-            }
-            else
-            {
-                Debug.LogError("MonsterController component is missing on the instantiated monster prefab!");
-            }
+            //Creates a monster from the players party, filling in all the data and provides a spawn location.
+            Monster createdMonster = playerParty[i];
+            GameObject monsterObject = Instantiate(generate_Monster.monsterPrefab, GetSpawnPosition(i, 0f, 0f), Quaternion.identity);
+            monsterObject.name = $"Monster({createdMonster.monsterSpeciesInfo.SPECIES})";  //// Rename the GameObject to include the species name
+            createdMonster.Monster_GameObject = monsterObject;
+            Test_Monster_Controller monsterController = monsterObject.GetComponent<Test_Monster_Controller>();
+            monsterController.monsterData = createdMonster; // Assign the Monster data to the Test_Monster_Controller
+            SpriteRenderer spriteRenderer = createdMonster.Monster_GameObject.GetComponent<SpriteRenderer>();
+            spriteRenderer.flipX = true; // Flip the sprite horizontally
+            spawnedPlayerMonsters.Add(createdMonster);
+            Debug.Log($"Player's monster {createdMonster.monsterSpeciesInfo.SPECIES} has been created and sent out!");
         }
-        
     }
 
     public void Init_BattleSetup_SpawnEnemyMonsters_Wild()
     {
-        // Clear the currently spawned player monsters
+        // Clear the currently spawned enemy monsters
         spawnedEnemyMonsters.Clear();
 
         // Ensure the number of monsters to send out does not exceed the size of the player party
@@ -965,33 +958,24 @@ public class GameManager : MonoBehaviour
 
         for (int i = 0; i < monstersToSendOut; i++)
         {
-            SpawnedMonster monsterToSendOut = generate_Monster.SpawnMonster();
-
-            // Instantiate the monster's GameObject in the scene
-            GameObject monsterGameObject = Instantiate(MonsterPrefab, GetSpawnPosition(i, 2.1f, 0.9f), Quaternion.identity);
-            
-            // Add the instantiated monster to the spawnedEnemyMonsters list
-            MonsterController monsterController = monsterGameObject.GetComponent<MonsterController>();
-            if (monsterController != null)
-            {
-                monsterController.monsterData = monsterToSendOut;
-                spawnedEnemyMonsters.Add(monsterController.monsterData);
-                Debug.Log($"Wild {monsterController.monsterData.speciesInfo.species} has appeared!");
-            }
-            else
-            {
-                Debug.LogError("MonsterController component is missing on the instantiated monster prefab!");
-            }
+            //Creates a random monster, filling in all the data and provides a spawn location. (wild battle).
+            Monster createdMonster = generate_Monster.CreateMonster();
+            GameObject monsterObject = Instantiate(generate_Monster.monsterPrefab, GetSpawnPosition(i, 2.1f, 0.9f), Quaternion.identity);    //Creates the monster on the battlefield.
+            monsterObject.name = $"Monster({createdMonster.monsterSpeciesInfo.SPECIES})";  //// Rename the GameObject to include the species name
+            createdMonster.Monster_GameObject = monsterObject;
+            Test_Monster_Controller monsterController = monsterObject.GetComponent<Test_Monster_Controller>();
+            monsterController.monsterData = createdMonster; // Assign the Monster data to the Test_Monster_Controller
+            spawnedEnemyMonsters.Add(createdMonster);
+            Debug.Log($"Wild {createdMonster.monsterSpeciesInfo.SPECIES} has been created!");
         }
     }
 
     
-    
 
 
 
 
-    private IEnumerator Handle_EncounterText(List<SpawnedMonster> spawnedEnemyMonsters)
+    private IEnumerator Handle_EncounterText(List<Monster> spawnedEnemyMonsters)
     {
         UI_controller.BattleUI_EncounterText.gameObject.SetActive(true);
         TextMeshProUGUI[] texts = UI_controller.BattleUI_EncounterText.GetComponentsInChildren<TextMeshProUGUI>();
@@ -1004,7 +988,7 @@ public class GameManager : MonoBehaviour
                     string encounterMessage = "A wild ";
                     for (int i = 0; i < spawnedEnemyMonsters.Count; i++)
                     {
-                        encounterMessage += spawnedEnemyMonsters[i].speciesInfo.species;
+                        encounterMessage += spawnedEnemyMonsters[i].monsterSpeciesInfo.SPECIES;
                         if (i < spawnedEnemyMonsters.Count - 1)
                         {
                             encounterMessage += " and ";
@@ -1019,7 +1003,7 @@ public class GameManager : MonoBehaviour
         UI_controller.BattleUI_EncounterText.gameObject.SetActive(false);   // Disable the Encounter Text
     }
 
-    private IEnumerator Handle_SendOutMonsterText(List<SpawnedMonster> spawnedPlayerMonsters)
+    private IEnumerator Handle_SendOutMonsterText(List<Monster> spawnedPlayerMonsters)
     {
         UI_controller.BattleUI_EncounterText.gameObject.SetActive(true);
         TextMeshProUGUI[] texts = UI_controller.BattleUI_EncounterText.GetComponentsInChildren<TextMeshProUGUI>();
@@ -1032,7 +1016,7 @@ public class GameManager : MonoBehaviour
                     string encounterMessage = "TRAINER_NAME sent out ";
                     for (int i = 0; i < spawnedPlayerMonsters.Count; i++)
                     {
-                        encounterMessage += spawnedPlayerMonsters[i].speciesInfo.species;
+                        encounterMessage += spawnedPlayerMonsters[i].monsterSpeciesInfo.SPECIES;
                         if (i < spawnedPlayerMonsters.Count - 1)
                         {
                             encounterMessage += " and ";
@@ -1056,11 +1040,11 @@ public class GameManager : MonoBehaviour
 
 
 
-
+/*
     // Method to combine spawnedEnemyMonsters and spawnedPlayerMonsters alternately
-    public List<SpawnedMonster> GetCombinedTargetList()
+    public List<Monster> GetCombinedTargetList()
     {
-        List<SpawnedMonster> combinedTargets = new List<SpawnedMonster>();
+        List<Monster> combinedTargets = new List<Monster>();
         int maxCount = Mathf.Max(spawnedEnemyMonsters.Count, spawnedPlayerMonsters.Count);
 
         for (int i = 0; i < maxCount; i++)
@@ -1079,7 +1063,7 @@ public class GameManager : MonoBehaviour
     }
 
     // Updated SwapTarget method
-    public void SwapTarget()
+    public void SwapTarget_Forward()
     {
         // Get the combined list
         List<SpawnedMonster> sortedTargets = GetCombinedTargetList();
@@ -1093,6 +1077,23 @@ public class GameManager : MonoBehaviour
                 selectedTargetIndex = 0; // Wrap around to the first target
             }
 
+            // Highlight the selected target
+            HighlightSelectedTarget(selectedTargetIndex);
+        }
+    }
+    public void SwapTarget_Backward()
+    {
+        // Get the combined list
+        List<SpawnedMonster> sortedTargets = GetCombinedTargetList();
+
+        if (sortedTargets.Count > 0)
+        {
+            // Increment the selected target index
+            selectedTargetIndex--;
+            if (selectedTargetIndex < 0)
+            {
+                selectedTargetIndex = sortedTargets.Count - 1; // Wrap around to the last target
+            }
             // Highlight the selected target
             HighlightSelectedTarget(selectedTargetIndex);
         }
@@ -1117,27 +1118,13 @@ public class GameManager : MonoBehaviour
         }
     }
 
+
     public void HighlightSelectedTarget(int selectedIndex)
     {
         List<SpawnedMonster> combinedTargets = GetCombinedTargetList();
 
         // Reset the color of all targets to white
-        foreach (var target in combinedTargets)
-        {
-            GameObject targetGameObject = FindMonsterGameObject(target);
-            if (targetGameObject != null)
-            {
-                SpriteRenderer spriteRenderer = targetGameObject.GetComponent<SpriteRenderer>();
-                if (spriteRenderer != null)
-                {
-                    spriteRenderer.color = Color.white; // Reset color to default (white)
-                }
-                else
-                {
-                    Debug.LogError("SpriteRenderer component is missing on the target's GameObject!");
-                }
-            }
-        }
+        HighlightClearTarget();
 
         // Highlight the selected target in red
         if (selectedIndex >= 0 && selectedIndex < combinedTargets.Count)
@@ -1169,6 +1156,32 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    
+    public void HighlightClearTarget()
+    {
+        List<SpawnedMonster> combinedTargets = GetCombinedTargetList();
+
+        // Reset the color of all targets to white
+        foreach (var target in combinedTargets)
+        {
+            GameObject targetGameObject = FindMonsterGameObject(target);
+            if (targetGameObject != null)
+            {
+                SpriteRenderer spriteRenderer = targetGameObject.GetComponent<SpriteRenderer>();
+                if (spriteRenderer != null)
+                {
+                    spriteRenderer.color = Color.white; // Reset color to default (white)
+                }
+                else
+                {
+                    Debug.LogError("SpriteRenderer component is missing on the target's GameObject!");
+                }
+            }
+        }
+    }
+
+    
+
 
     // Helper method to find the GameObject associated with a SpawnedMonster
     private GameObject FindMonsterGameObject(SpawnedMonster monster)
@@ -1184,7 +1197,7 @@ public class GameManager : MonoBehaviour
             }
         }
         return null;
-    }
+    }*/
 
     
 
