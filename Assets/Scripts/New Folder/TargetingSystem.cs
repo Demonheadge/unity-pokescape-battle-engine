@@ -13,7 +13,9 @@ public class TargetingSystem : MonoBehaviour
     public List<GameObject> playerTeam;
     private List<GameObject> allTargets;
     public int currentTargetIndex = 0;
-    private GameObject currentAttackingMonster;
+    public GameObject currentAttackingMonster;
+    public GameObject currentDefendingMonster;
+    
 
     void Start()
     {
@@ -118,6 +120,10 @@ public class TargetingSystem : MonoBehaviour
     public void SetCurrentAttackingMonster(GameObject attackingMonster)
     {
         currentAttackingMonster = attackingMonster;
+    }
+    public void SetCurrentDefendingMonster(GameObject defendingMonster)
+    {
+        currentDefendingMonster = defendingMonster;
     }
 
     public void SetTeams(List<GameObject> enemies, List<GameObject> players)

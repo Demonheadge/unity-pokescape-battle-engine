@@ -19,6 +19,8 @@ public class TEST_TurnBasedBattleSystem : MonoBehaviour
     public List<Monster> turnOrder; // List of monsters sorted by speed for turn order
     private int currentTurnIndex = 0; // Index of the current monster's turn
 
+    public string currentAnimation;
+
 
 
     public void BeginTurns()
@@ -95,10 +97,15 @@ public class TEST_TurnBasedBattleSystem : MonoBehaviour
 
 
 
+    
+
+
+
 
     private IEnumerator PlayerTurn(Monster playerMonster)
     {
         Debug.Log("Player's turn!");
+        Anim_StartTurn_Bop(playerMonster);
 
         //OPTION MENU CHOOSE AN OPTION
         yield return StartCoroutine(UI_OptionMenu(playerMonster));
@@ -107,6 +114,7 @@ public class TEST_TurnBasedBattleSystem : MonoBehaviour
     private IEnumerator EnemyTurn(Monster attackingMonster)
     {
         Debug.Log($"{attackingMonster.monsterSpeciesInfo.SPECIES}'s turn!");
+        Anim_StartTurn_Bop(attackingMonster);
 
         //Enemy Chooses a Target
         Monster targetMonster = EnemySelectsATarget(attackingMonster);
@@ -114,16 +122,22 @@ public class TEST_TurnBasedBattleSystem : MonoBehaviour
         // Randomly select a move
         MoveInformation selectedMove = SelectRandomMove(attackingMonster.monsterMoves);
 
+        yield return new WaitForSeconds(2f);
+
+        Anim_EndTurn_Bop(attackingMonster);
+
         //Attacks the target
         Execute_Move(attackingMonster, targetMonster, selectedMove);
 
         // Check if the target is defeated
         CheckIfTargetIsDefeated(targetMonster);
 
-        yield return new WaitForSeconds(1f); // Wait for animation or effects
+        
+
+        yield return new WaitForSeconds(2f); // Wait for animation or effects
     }
 
-    private Monster EnemySelectsATarget(Monster attackingMonster)
+    private Monster EnemySelectsATarget(Monster attackingMonster)   //Current issue: All enemies attack the same target until the next turn.
     {
         // Randomly select a target from the player team
         if (gameManager.spawnedPlayerMonsters.Count == 0)
@@ -139,12 +153,20 @@ public class TEST_TurnBasedBattleSystem : MonoBehaviour
 
     private void Execute_Move(Monster attackingMonster, Monster targetMonster, MoveInformation selectedMove)
     {
+        targetingSystem.SetCurrentDefendingMonster(targetMonster.Monster_GameObject);
+
+        StartCoroutine(Anim_PerformAttackAnimation(targetMonster));
+
+
+
         //TODO: redo calcs for move damage instead.
         // Perform the attack (example: reduce target's HP)
         int damage = CalculateDamage(attackingMonster, targetMonster);
         targetMonster.monsterStatistics.current_HP -= damage;
 
         Debug.Log($"{attackingMonster.monsterSpeciesInfo.SPECIES} used {selectedMove.name} on {targetMonster.monsterSpeciesInfo.SPECIES} for {damage} damage!");
+        
+        StartCoroutine(Anim_PerformHitReactionAnimation(targetMonster));
     }
 
     private void CheckIfTargetIsDefeated(Monster targetMonster)
@@ -379,16 +401,18 @@ public class TEST_TurnBasedBattleSystem : MonoBehaviour
             yield return null;
         }
 
+        Anim_EndTurn_Bop(playerMonster);
+
         uiController.BattleUI_FightMenu.SetActive(false);
         uiController.variables.canPlayerInteract = false;
 
         //Player Attacks the target
-        PlayerAttacks(playerMonster, selectedMove);
+        yield return StartCoroutine(PlayerAttacks(playerMonster, selectedMove));
 
         yield break;
     }
 
-    private void PlayerAttacks(Monster attackingMonster, MoveInformation selectedMove)
+    private IEnumerator PlayerAttacks(Monster attackingMonster, MoveInformation selectedMove)
     {
         targetingSystem.HighlightClearTarget();
         // Get the current target from the targeting system
@@ -397,7 +421,7 @@ public class TEST_TurnBasedBattleSystem : MonoBehaviour
         if (targetObject == null)
         {
             Debug.LogWarning("No target selected for player attack!");
-            return;
+            yield break;
         }
 
         // Get the Test_Monster_Controller of the target
@@ -412,6 +436,8 @@ public class TEST_TurnBasedBattleSystem : MonoBehaviour
 
             // Check if the target is defeated
             CheckIfTargetIsDefeated(targetMonster);
+
+            yield return new WaitForSeconds(2f); // Wait for animation or effects
         }
     }
 
@@ -436,4 +462,93 @@ public class TEST_TurnBasedBattleSystem : MonoBehaviour
         return moves[UnityEngine.Random.Range(0, moves.Count)];
     }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//Animations
+    public void Anim_StartTurn_Bop(Monster monster)
+    {
+        // Start the bop animation for the current active monster
+        Test_Monster_Controller activeController = targetingSystem.currentAttackingMonster.GetComponent<Test_Monster_Controller>();
+
+        if (activeController != null)
+        {
+            activeController.StartBopAnimation();
+        }
+        else
+        {
+            Debug.LogError($"MonsterController component is missing on {targetingSystem.currentAttackingMonster}'s GameObject!");
+        }
+    }
+
+    public void Anim_EndTurn_Bop(Monster monster)
+    {
+        // Start the bop animation for the current active monster
+        Test_Monster_Controller activeController = targetingSystem.currentAttackingMonster.GetComponent<Test_Monster_Controller>();
+
+        if (activeController != null)
+        {
+            activeController.StopBopAnimation();
+        }
+        else
+        {
+            Debug.LogError($"MonsterController component is missing on {targetingSystem.currentAttackingMonster}'s GameObject!");
+        }
+    }
+
+    public IEnumerator Anim_PerformHitReactionAnimation(Monster monster)
+    {
+        // Start the bop animation for the current active monster
+        Test_Monster_Controller activeController = targetingSystem.currentDefendingMonster.GetComponent<Test_Monster_Controller>();
+
+        if (activeController != null)
+        {
+            yield return StartCoroutine(activeController.PerformHitReactionAnimation());
+        }
+        else
+        {
+            Debug.LogError($"MonsterController component is missing on {targetingSystem.currentDefendingMonster}'s GameObject!");
+        }
+        yield return new WaitForSeconds(2f);    // Wait for x seconds.
+    }
+
+    public IEnumerator Anim_PerformAttackAnimation(Monster defending_monster)
+    {
+        // Start the bop animation for the current active monster
+        Test_Monster_Controller activeController_attacker = targetingSystem.currentAttackingMonster.GetComponent<Test_Monster_Controller>();
+        Transform activeController_defender = defending_monster.Monster_GameObject.transform;
+
+        if (activeController_attacker != null && activeController_defender != null )
+        {
+            yield return StartCoroutine(activeController_attacker.StartAttackAnimation(activeController_defender));
+        }
+        else
+        {
+            Debug.LogError($"MonsterController component is missing on {targetingSystem.currentDefendingMonster}'s GameObject!");
+        }
+        yield return new WaitForSeconds(1f);    // Wait for x seconds.
+    }
 }
