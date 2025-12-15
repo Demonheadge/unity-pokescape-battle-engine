@@ -19,6 +19,9 @@ public class GameManager : MonoBehaviour
     
     public int playerPartySize = 6; //Max amount of monsters allowed in the players party.
     public List<Monster> playerParty = new List<Monster>();
+    public List<Monster> trainerParty = new List<Monster>();
+    // Current active monster index for the player //Current active monster in battle.
+    public int currentPlayerMonsterIndex = 0;
     
     public Variables variables;
     public UI_Controller UI_controller;
@@ -891,6 +894,7 @@ public class GameManager : MonoBehaviour
         }
         Init_BattleSetup_SpawnEnemyMonsters_Wild();
         yield return StartCoroutine(Handle_EncounterText(spawnedEnemyMonsters));
+
         Init_BattleSetup_SendOutPlayerMonsters();
         yield return StartCoroutine(Handle_SendOutMonsterText(spawnedPlayerMonsters));
         
@@ -924,7 +928,7 @@ public class GameManager : MonoBehaviour
         return new Vector3(xOffset, yOffset, 0); // Adjust as needed
     }
 
-    public void Init_BattleSetup_SendOutPlayerMonsters()
+    /*public void Init_BattleSetup_SendOutPlayerMonsters()
     {
         // Clear the currently spawned player monsters
         spawnedPlayerMonsters.Clear();
@@ -946,7 +950,79 @@ public class GameManager : MonoBehaviour
             spawnedPlayerMonsters.Add(createdMonster);
             Debug.Log($"Player's monster {createdMonster.monsterSpeciesInfo.SPECIES} has been created and sent out!");
         }
+    }*/
+    public void Init_BattleSetup_SendOutPlayerMonsters()
+    {
+        // Clear the currently spawned player monsters
+        spawnedPlayerMonsters.Clear();
+
+        // Ensure the number of monsters to send out does not exceed the size of the player party
+        int monstersToSendOut = Mathf.Min(PlayerSide_HowManyMonsters_InBattle, playerParty.Count);
+
+        for (int i = 0; i < monstersToSendOut; i++)
+        {
+            // Get the next available monster from the player's party
+            Monster nextPlayerMonster = test_TurnBasedBattleSystem.GetNextAvailablePlayerMonster();
+            if (nextPlayerMonster != null)
+            {
+                // Create the monster from the player's party, filling in all the data and providing a spawn location
+                GameObject monsterObject = Instantiate(generate_Monster.monsterPrefab, GetSpawnPosition(i, 0f, 0f), Quaternion.identity);
+                monsterObject.name = $"Monster({nextPlayerMonster.monsterSpeciesInfo.SPECIES})"; // Rename the GameObject to include the species name
+                nextPlayerMonster.Monster_GameObject = monsterObject;
+
+                // Assign the Monster data to the Test_Monster_Controller
+                Test_Monster_Controller monsterController = monsterObject.GetComponent<Test_Monster_Controller>();
+                if (monsterController != null)
+                {
+                    monsterController.monsterData = nextPlayerMonster;
+                }
+                else
+                {
+                    Debug.LogError("Test_Monster_Controller component not found on the instantiated monster object.");
+                }
+
+                // Flip the sprite horizontally
+                SpriteRenderer spriteRenderer = monsterObject.GetComponent<SpriteRenderer>();
+                if (spriteRenderer != null)
+                {
+                    spriteRenderer.flipX = true;
+                }
+                else
+                {
+                    Debug.LogError("SpriteRenderer component not found on the instantiated monster object.");
+                }
+
+                // Add the monster to the spawned player monsters list
+                spawnedPlayerMonsters.Add(nextPlayerMonster);
+
+                //Sets the monster to be active in battle.
+                nextPlayerMonster.monsterinBattleInfo.isActiveInBattle = true;
+
+                Debug.Log($"Player's monster {nextPlayerMonster.monsterSpeciesInfo.SPECIES} has been created and sent out!");
+            }
+            else
+            {
+                Debug.LogError("No valid monster to send out!");
+                break; // Exit the loop if no more valid monsters are available
+            }
+        }
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     public void Init_BattleSetup_SpawnEnemyMonsters_Wild()
     {

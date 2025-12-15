@@ -125,6 +125,10 @@ public class UI_Controller : MonoBehaviour
                     Debug.Log($"Current target is: {currentTarget.name}");
                 }
             }
+            else if (Keyboard.current.digit1Key.wasPressedThisFrame )//&& gameManager.variables.canPlayerInteract)
+            {
+                gameManager.test_TurnBasedBattleSystem.SwapPlayerMonster();
+            }
 
             // Check if the I key is pressed to deal damage to the selected target
             //if (Keyboard.current.iKey.wasPressedThisFrame && gameManager.variables.canPlayerInteract)

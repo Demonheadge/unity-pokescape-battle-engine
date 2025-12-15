@@ -119,6 +119,11 @@ public class Test_Generate_Monster : MonoBehaviour
             current_Defense_Magic = ((2 * randomMonster.baseDefense_Magic + (def_magic_iv_total / 4)) * calculatedLevel) / 100,
         };
 
+        Monster.inBattleInfo monsterinBattleInfo = new Monster.inBattleInfo
+        {
+            isActiveInBattle = false
+        };
+
         // Instantiate a new GameObject and add the Test_Monster_Controller component
         //GameObject monsterObject = Instantiate(monsterPrefab);
         //GameObject monsterObject = Instantiate(monsterPrefab, GetSpawnPosition(0, 2.1f, 0.9f), Quaternion.identity);    //TODO: Spawn postition
@@ -132,7 +137,8 @@ public class Test_Generate_Monster : MonoBehaviour
             monsterSpeciesInfo = randomMonster,
             monsterMoves = monsterMoves,
             monsterStatistics = monsterStatistics,
-            monsterSkills = monsterSkills
+            monsterSkills = monsterSkills,
+            monsterinBattleInfo = monsterinBattleInfo
         };
 
         // Assign the Monster data to the Test_Monster_Controller

@@ -104,7 +104,8 @@ public class TEST_TurnBasedBattleSystem : MonoBehaviour
 
     private IEnumerator PlayerTurn(Monster playerMonster)
     {
-        Debug.Log("Player's turn!");
+        gameManager.currentPlayerMonsterIndex = gameManager.playerParty.IndexOf(playerMonster);
+        Debug.Log($"Player's {playerMonster.monsterSpeciesInfo.SPECIES} turn! PartySlot:{gameManager.currentPlayerMonsterIndex}");
         Anim_StartTurn_Bop(playerMonster);
 
         //OPTION MENU CHOOSE AN OPTION
@@ -169,7 +170,8 @@ public class TEST_TurnBasedBattleSystem : MonoBehaviour
         StartCoroutine(Anim_PerformHitReactionAnimation(targetMonster));
     }
 
-    private void CheckIfTargetIsDefeated(Monster targetMonster)
+    
+    public void CheckIfTargetIsDefeated(Monster targetMonster)
     {
         if (targetMonster.monsterStatistics.current_HP <= 0)
         {
@@ -178,24 +180,110 @@ public class TEST_TurnBasedBattleSystem : MonoBehaviour
             // Check if the current monster is an enemy or player
             if (gameManager.spawnedEnemyMonsters.Contains(targetMonster))
             {
+                /*// Set the monster to inactive in battle
+                Test_Monster_Controller monsterGameObject = targetMonster.Monster_GameObject.GetComponent<Test_Monster_Controller>();
+                if (monsterGameObject != null)
+                {
+                    monsterGameObject.isActiveInBattle = false;
+                }*/
+                //Removes the defeated monster from battle.
                 gameManager.spawnedEnemyMonsters.Remove(targetMonster);
+                Destroy(targetMonster.Monster_GameObject);
+
+                if (CheckNextAvailableMonster(gameManager.trainerParty))
+                {
+                    gameManager.Init_BattleSetup_SendOutPlayerMonsters();
+                }
+                else
+                {
+                    gameManager.CheckIfEndBattle();
+                }
             }
             else if (gameManager.spawnedPlayerMonsters.Contains(targetMonster))
             {
+                /*// Set the monster to inactive in battle
+                Test_Monster_Controller monsterGameObject = targetMonster.Monster_GameObject.GetComponent<Test_Monster_Controller>();
+                if (monsterGameObject != null)
+                {
+                    monsterGameObject.isActiveInBattle = false;
+                }*/
+                //Removes the defeated monster from battle.
                 gameManager.spawnedPlayerMonsters.Remove(targetMonster);
+                Destroy(targetMonster.Monster_GameObject);
+
+                if (CheckNextAvailableMonster(gameManager.playerParty))
+                {
+                    gameManager.Init_BattleSetup_SendOutPlayerMonsters();
+                }
+                else
+                {
+                    gameManager.CheckIfEndBattle();
+                }
             }
-
-            Destroy(targetMonster.Monster_GameObject);
         }
+    }
 
-        //check if all team side monsters are defeated, if so end battle.
+    public bool CheckNextAvailableMonster(List<Monster> party)
+    {
+        foreach (var monster in party)
+        {
+            if (monster.monsterStatistics.current_HP > 0 && !monster.monsterinBattleInfo.isActiveInBattle)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public Monster GetNextAvailableTrainerMonster()
+    {
+        foreach (var monster in gameManager.trainerParty)
+        {
+            if (monster.monsterStatistics.current_HP > 0 && !monster.monsterinBattleInfo.isActiveInBattle)
+            {
+                return monster;
+            }
+        }
+        return null;
+    }
+
+    public Monster GetNextAvailablePlayerMonster()
+    {
+        foreach (var monster in gameManager.playerParty)
+        {
+            if (monster.monsterStatistics.current_HP > 0 && !monster.monsterinBattleInfo.isActiveInBattle)
+            {
+                gameManager.currentPlayerMonsterIndex = gameManager.playerParty.IndexOf(monster);
+                return monster;
+            }
+        }
+        return null;
+    }
+
+    public void SwapPlayerMonster()
+    {
+        // Get the monster whose turn it currently is
+        Monster currentTurnMonster = gameManager.spawnedPlayerMonsters[gameManager.currentPlayerMonsterIndex];
+
+        // Check if there are other monsters in the player's party that are alive and not already active in battle
+        if (CheckNextAvailableMonster(gameManager.playerParty))
+        {
+            currentTurnMonster.monsterinBattleInfo.isActiveInBattle = false;
+            //Play Swapping out / Withdrawing from battle animation.
+            //Removes the Swapped monster from battle.
+            gameManager.spawnedEnemyMonsters.Remove(currentTurnMonster);
+            Destroy(currentTurnMonster.Monster_GameObject);
+
+            Debug.Log($"Swapped out {currentTurnMonster.monsterSpeciesInfo.SPECIES}.");
+            gameManager.Init_BattleSetup_SendOutPlayerMonsters();
+        }
+        else
+        {
+            Debug.Log("No other monsters available to swap.");
+        }
     }
 
 
-
-
-
-    
 
 
 

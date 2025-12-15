@@ -14,6 +14,8 @@ public class Monster
     public Moves monsterMoves;                    // Holds the moves information
     public Statistics monsterStatistics;               // Holds the stats and level information
     public Skills monsterSkills;                   // Holds the skill information
+    public inBattleInfo monsterinBattleInfo; 
+    
 
     [System.Serializable]
     public class SpeciesInfo
@@ -103,6 +105,13 @@ public class Monster
         public int skill_archaeology;
         public int skill_thieving;
         public int skill_invention;
+    }
+
+    [System.Serializable]
+    public class inBattleInfo
+    {
+        public bool isActiveInBattle;
+        public StatusCondition currentStatusCondition;
     }
 
 }
@@ -271,6 +280,13 @@ public enum MonsterType
     DEATH,
     BLOOD,
     SOUL,
+}
+
+public enum StatusCondition
+{
+    NONE,
+    BURN,
+    FREEZE,
 }
 
 public enum Species
