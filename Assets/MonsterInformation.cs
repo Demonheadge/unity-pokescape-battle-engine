@@ -111,6 +111,8 @@ public class Monster
     public class inBattleInfo
     {
         public bool isActiveInBattle;
+        //public bool HasChosenAction;
+        public bool IsSwappingOut;
         public StatusCondition currentStatusCondition;
     }
 
@@ -1407,6 +1409,30 @@ public enum Species
     Baboon_Brawler_Form,
 }
 
+public enum Items
+{
+    NONE,
+    FRAGEMENT_OF_JAS,
+    CABBAGE,
+    BREAD,
+}
+
+public enum Status
+{
+    NONE,
+    FAINTED,
+    BURN,
+    FREEZE,
+}
+
+public enum EvolutionMethods
+{
+    NONE,
+    EVO_LEVELUP,
+    EVO_LEVELUP_DAY,
+    EVO_LEVELUP_NIGHT,
+    EVO_LEVELUP_STATUS,
+}
 
 /*
 [CreateAssetMenu(fileName = "Monster", menuName = "Pokescape/Monster")]

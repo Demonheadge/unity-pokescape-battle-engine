@@ -25,17 +25,94 @@ public class TEST_TurnBasedBattleSystem : MonoBehaviour
 
     public void BeginTurns()
     {
-        gameManager.music_Manager.PlayMusic(gameManager.music_Manager.selectedBattleMusic); //Play Battle music.
-        // Initialize the turn order based on speed stats
-        
+        gameManager.music_Manager.PlayMusic(gameManager.music_Manager.selectedBattleMusic); // Play Battle music.
+
+        if (targetingSystem != null)
+        {
+            targetingSystem.gameManager = gameManager; // Assign gameManager reference
+            targetingSystem.InitializeTargets();
+        }
+        else
+        {
+            Debug.LogError("TargetingSystem is not assigned!");
+            return;
+        }
+
+        StartCoroutine(HandleMonsterDecisions());
+    }
+
+    
+
+    private IEnumerator HandleMonsterDecisions()
+    {
+        // Reset all monsters' HasChosenAction to false for the next turn
+        foreach (var monster in turnOrder)
+        {
+            Test_Monster_Controller monsterController = monster.Monster_GameObject.GetComponent<Test_Monster_Controller>();
+            monsterController.SetHasChosenAction(false);
+        }
+
+        Debug.Log("Gathering inputs/decisions for all monsters...");
+
+        // Gather decisions for player's monsters
+        foreach (var playerMonster in gameManager.spawnedPlayerMonsters)
+        {
+            yield return StartCoroutine(GetPlayerMonsterDecision(playerMonster));
+        }
+
+        // Gather decisions for enemy monsters
+        foreach (var enemyMonster in gameManager.spawnedEnemyMonsters)
+        {
+            yield return StartCoroutine(GetEnemyMonsterDecision(enemyMonster));
+        }
+
+        // Step 2: Initialize the turn order based on speed stats
         InitializeTurnOrder();
+
+        // Step 3: Initialize targeting system
         targetingSystem.InitializeTargets();
+
+        // Step 4: Execute turns
         StartCoroutine(HandleTurns());
     }
 
+    private IEnumerator GetPlayerMonsterDecision(Monster playerMonster)
+    {
+        Debug.Log($"Waiting for player to choose action for {playerMonster.monsterSpeciesInfo.SPECIES}...");
+
+        // Assign the current attacking monster in the targeting system
+        targetingSystem.SetCurrentAttackingMonster(playerMonster.Monster_GameObject);
+
+        // Wait for player input (e.g., selecting a move, swapping, etc.)
+        Test_Monster_Controller monsterController = playerMonster.Monster_GameObject.GetComponent<Test_Monster_Controller>();
+        while (!monsterController.HasChosenAction)
+        {
+            yield return StartCoroutine(PlayerTurn(playerMonster));
+            yield return null; // Wait until the player has chosen an action
+        }
+
+        Debug.Log($"{playerMonster.monsterSpeciesInfo.SPECIES} has chosen its action.");
+    }
+
+    private IEnumerator GetEnemyMonsterDecision(Monster enemyMonster)
+    {
+        Debug.Log($"Enemy is deciding action for {enemyMonster.monsterSpeciesInfo.SPECIES}...");
+
+        // Assign the current attacking monster in the targeting system
+        targetingSystem.SetCurrentAttackingMonster(enemyMonster.Monster_GameObject);
+
+        // Simulate enemy decision-making (e.g., AI logic for choosing a move)
+        yield return new WaitForSeconds(1f); // Simulate delay for enemy decision-making
+        Test_Monster_Controller monsterController = enemyMonster.Monster_GameObject.GetComponent<Test_Monster_Controller>();
+        monsterController.ChooseAction(enemyMonster); // Call a method to set the enemy's action
+
+        Debug.Log($"{enemyMonster.monsterSpeciesInfo.SPECIES} has chosen its action.");
+    }
+
+
+
     public void InitializeTurnOrder()
     {
-        //Removes previous battle history if there is any.
         turnOrder.Clear();
 
         // Combine all monsters on the field into a single list
@@ -44,7 +121,10 @@ public class TEST_TurnBasedBattleSystem : MonoBehaviour
         allMonsters.AddRange(gameManager.spawnedPlayerMonsters);
 
         // Sort monsters by current_speed in descending order (higher speed goes first)
-        turnOrder = allMonsters.OrderByDescending(monster => monster.monsterStatistics.current_Speed).ToList();
+        turnOrder = allMonsters
+            .Where(monster => monster.monsterStatistics.current_HP > 0) // Only include monsters that are alive
+            .OrderByDescending(monster => monster.monsterStatistics.current_Speed)
+            .ToList();
 
         Debug.Log("Turn order initialized:");
         foreach (var monster in turnOrder)
@@ -53,8 +133,60 @@ public class TEST_TurnBasedBattleSystem : MonoBehaviour
         }
     }
 
-
     private IEnumerator HandleTurns()
+    {
+        Debug.Log("Executing turns...");
+
+        foreach (var monster in turnOrder)
+        {
+            // Skip monsters that are defeated
+            if (monster.monsterStatistics.current_HP <= 0)
+            {
+                continue;
+            }
+
+            // Assign the current attacking monster in the targeting system
+            targetingSystem.SetCurrentAttackingMonster(monster.Monster_GameObject);
+
+            // Execute the monster's chosen action
+            yield return StartCoroutine(ExecuteMonsterAction(monster));
+        }
+
+        Debug.Log("All turns executed. Next turn!");
+        StartCoroutine(HandleMonsterDecisions());
+    }
+
+    private IEnumerator ExecuteMonsterAction(Monster monster)
+    {
+        Debug.Log($"Executing action for {monster.monsterSpeciesInfo.SPECIES}...");
+        
+
+        Test_Monster_Controller monsterController = monster.Monster_GameObject.GetComponent<Test_Monster_Controller>();
+        // Check if the monster is swapping out
+        if (monsterController.IsSwappingOut)
+        {
+            Debug.Log($"{monster.monsterSpeciesInfo.SPECIES} is swapping out...");
+            Monster nextMonster = GetNextAvailablePlayerMonster();
+            if (nextMonster != null)
+            {
+                gameManager.Init_BattleSetup_SendOutPlayerMonsters();
+            }
+            yield break; // Skip further actions for this monster
+        }
+
+        // Execute the monster's chosen move
+        //yield return monster.ExecuteChosenMove();
+        Debug.LogWarning($"TODO: {monster.monsterSpeciesInfo.SPECIES} IS NOW ATTACKING! (IF THE ATTACK SCRIPT WORKED).");
+        
+
+        Debug.Log($"{monster.monsterSpeciesInfo.SPECIES} has completed its turn.");
+    }
+
+
+
+
+
+    /*private IEnumerator HandleTurns()
     {
         while (gameManager.variables.isInABattle)
         {
@@ -93,7 +225,7 @@ public class TEST_TurnBasedBattleSystem : MonoBehaviour
                 Debug.Log("New round begins!");
             }
         }
-    }
+    }*/
 
 
 
@@ -102,15 +234,7 @@ public class TEST_TurnBasedBattleSystem : MonoBehaviour
 
 
 
-    private IEnumerator PlayerTurn(Monster playerMonster)
-    {
-        gameManager.currentPlayerMonsterIndex = gameManager.playerParty.IndexOf(playerMonster);
-        Debug.Log($"Player's {playerMonster.monsterSpeciesInfo.SPECIES} turn! PartySlot:{gameManager.currentPlayerMonsterIndex}");
-        Anim_StartTurn_Bop(playerMonster);
-
-        //OPTION MENU CHOOSE AN OPTION
-        yield return StartCoroutine(UI_OptionMenu(playerMonster));
-    }
+    
 
     private IEnumerator EnemyTurn(Monster attackingMonster)
     {
@@ -348,7 +472,15 @@ public class TEST_TurnBasedBattleSystem : MonoBehaviour
 
 
 
+    private IEnumerator PlayerTurn(Monster playerMonster)
+    {
+        gameManager.currentPlayerMonsterIndex = gameManager.playerParty.IndexOf(playerMonster);
+        Debug.Log($"Player's {playerMonster.monsterSpeciesInfo.SPECIES} turn! PartySlot:{gameManager.currentPlayerMonsterIndex}");
+        //Anim_StartTurn_Bop(playerMonster);
 
+        //OPTION MENU CHOOSE AN OPTION
+        yield return StartCoroutine(UI_OptionMenu(playerMonster));
+    }
 
     private IEnumerator UI_OptionMenu(Monster playerMonster)
     {
@@ -494,8 +626,14 @@ public class TEST_TurnBasedBattleSystem : MonoBehaviour
         uiController.BattleUI_FightMenu.SetActive(false);
         uiController.variables.canPlayerInteract = false;
 
+        
+        //Finishes Turn Choice
+        Test_Monster_Controller monsterController = playerMonster.Monster_GameObject.GetComponent<Test_Monster_Controller>();
+        monsterController.SetHasChosenAction(true);
+        targetingSystem.HighlightClearTarget();
+
         //Player Attacks the target
-        yield return StartCoroutine(PlayerAttacks(playerMonster, selectedMove));
+        //yield return StartCoroutine(PlayerAttacks(playerMonster, selectedMove));
 
         yield break;
     }

@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 public class Test_Monster_Controller : MonoBehaviour
 {
@@ -7,6 +8,187 @@ public class Test_Monster_Controller : MonoBehaviour
     public Monster monsterData;
     private SpriteRenderer spriteRenderer; // Reference to the SpriteRenderer component
     private Coroutine attackCoroutine; // To manage the attack animation
+
+    public GameManager gameManager;
+    public Test_Generate_Monster test_Generate_Monster;
+    public Monster.Statistics monsterStatistics; // Contains stats like current_HP, max_HP, current_Speed, etc.
+    public Monster.SpeciesInfo monsterSpeciesInfo; // Contains species-specific info
+    public List<Move> availableMoves; // List of moves the monster can use
+    public bool HasChosenAction { get; private set; } // Tracks if the monster has chosen an action
+    public bool IsSwappingOut { get; private set; } // Tracks if the monster is swapping out
+    public Move chosenMove; // The move chosen by the monster
+    public Monster targetMonster; // The target for the chosen move
+
+    public void SetHasChosenAction(bool value)
+    {
+        HasChosenAction = value;
+    }
+
+    // Fetch usable moves based on the MoveDatabase
+    public List<MoveInformation> GetUsableMoves(Move species, int id, int level)
+    {
+        List<MoveInformation> usableMoves = new List<MoveInformation>();
+        foreach (var moveInfo in test_Generate_Monster.moveDatabase.moves)
+        {
+            if (moveInfo.move == species && moveInfo.damage <= level) // Example condition
+            {
+                usableMoves.Add(moveInfo);
+            }
+        }
+        return usableMoves;
+    }
+
+
+
+    public void ChooseAction(Monster monster)
+    {
+        // Reset action flags
+        SetHasChosenAction(false);
+        IsSwappingOut = false;
+
+        // Check if the monster's health is critically low
+        if (monster.monsterStatistics.current_HP <= monster.monsterStatistics.max_HP * 0.2f)
+        {
+            // If health is critically low, decide whether to swap out
+            /*if (ShouldSwapOut())
+            {
+                IsSwappingOut = true;
+                HasChosenAction = true;
+                Debug.Log($"{monsterSpeciesInfo.SPECIES} has chosen to swap out due to low health.");
+                return;
+            }*/
+            Debug.LogError($"{monster.monsterSpeciesInfo.SPECIES} considered swapping out...");
+        }
+
+        // If not swapping, choose the best move
+        chosenMove = ChooseBestMove(monster);
+        targetMonster = ChooseTarget();
+
+        if (chosenMove != Move.NONE && targetMonster != null)
+        {
+            SetHasChosenAction(true);
+            Debug.Log($"{monster.monsterSpeciesInfo.SPECIES} has chosen to use {chosenMove} on {targetMonster.monsterSpeciesInfo.SPECIES}.");
+        }
+        else
+        {
+            Debug.LogError($"{monster.monsterSpeciesInfo.SPECIES} could not choose a valid action.");
+        }
+    }
+
+    private bool ShouldSwapOut()
+    {
+        // Example logic for swapping out:
+        // Check if there are other monsters in the party that are alive and not already active in battle
+        Monster nextMonster = gameManager.test_TurnBasedBattleSystem.GetNextAvailableTrainerMonster();
+        return nextMonster != null; // Swap out if there is a valid monster to replace this one
+    }
+
+
+    private Move ChooseBestMove(Monster monster)
+    {
+        List<MoveInformation> moves = new List<MoveInformation>
+        {
+            gameManager.UI_controller.GetMoveInformation(monster.monsterMoves.MOVE_1),
+            gameManager.UI_controller.GetMoveInformation(monster.monsterMoves.MOVE_2),
+            gameManager.UI_controller.GetMoveInformation(monster.monsterMoves.MOVE_3),
+            gameManager.UI_controller.GetMoveInformation(monster.monsterMoves.MOVE_4)
+        };
+        // Remove null moves and moves with Move.None
+        moves.RemoveAll(move => move == null || move.move == Move.NONE);
+
+        if (moves.Count == 0)
+        {
+            Debug.LogError("No valid moves available for enemy!");
+            return Move.NONE;
+        }
+
+        //Return For randomness.
+        //return moves[UnityEngine.Random.Range(0, moves.Count)];
+        
+
+        // Example logic for choosing the best move:
+        // Select the move with the highest damage
+        MoveInformation bestMove = null;
+
+        int highestDamage = 0;
+
+        foreach (var moveInfo in moves)
+        {
+            if (moveInfo.damage > highestDamage)
+            {
+                bestMove = moveInfo;
+                highestDamage = moveInfo.damage;
+            }
+        }
+
+        return bestMove.move;
+    }
+
+    private Monster ChooseTarget()
+    {
+        // Check if gameManager is null
+        if (gameManager == null)
+        {
+            Debug.LogError("GameManager reference is null! Cannot choose a target.");
+            return null;
+        }
+
+        // Check if spawnedEnemyMonsters is null or empty
+        if (gameManager.spawnedEnemyMonsters == null || gameManager.spawnedEnemyMonsters.Count == 0)
+        {
+            Debug.LogError("No enemy monsters available to choose a target!");
+            return null;
+        }
+
+        // Select the enemy monster with the lowest health that is still alive
+        Monster target = null;
+        int lowestHealth = int.MaxValue;
+
+        foreach (var enemyMonster in gameManager.spawnedEnemyMonsters)
+        {
+            if (enemyMonster != null && enemyMonster.monsterStatistics.current_HP > 0 && enemyMonster.monsterStatistics.current_HP < lowestHealth)
+            {
+                target = enemyMonster;
+                lowestHealth = enemyMonster.monsterStatistics.current_HP;
+            }
+        }
+
+        if (target == null)
+        {
+            Debug.LogWarning("No valid target found among enemy monsters!");
+        }
+
+        return target;
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/// /////////////////////////////////////////////////////////////////////////////
+
+
+
 
 
     private void Awake()
@@ -21,6 +203,12 @@ public class Test_Monster_Controller : MonoBehaviour
 
     private void Start()
     {        
+        gameManager = GameManager.Instance;
+        if (gameManager == null)
+        {
+            Debug.LogError("GameManager instance not found in the scene!");
+        }
+
         if (monsterData != null)
         {
             InitializeMonster(monsterData);

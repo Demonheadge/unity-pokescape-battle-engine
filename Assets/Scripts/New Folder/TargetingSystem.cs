@@ -24,7 +24,22 @@ public class TargetingSystem : MonoBehaviour
 
     public void InitializeTargets()
     {
-        // Populate enemyTeam with Monster_GameObjects from spawnedEnemyMonsters
+        if (gameManager == null)
+        {
+            Debug.LogError("GameManager reference is null! Cannot initialize targets.");
+            return;
+        }
+
+        if (gameManager.spawnedEnemyMonsters == null || gameManager.spawnedPlayerMonsters == null)
+        {
+            Debug.LogError("Spawned monsters lists are null! Ensure they are initialized in GameManager.");
+            return;
+        }
+
+        enemyTeam.Clear();
+        playerTeam.Clear();
+        allTargets = new List<GameObject>();
+
         foreach (Monster enemyMonster in gameManager.spawnedEnemyMonsters)
         {
             if (enemyMonster != null && enemyMonster.Monster_GameObject != null)
@@ -32,7 +47,7 @@ public class TargetingSystem : MonoBehaviour
                 enemyTeam.Add(enemyMonster.Monster_GameObject);
             }
         }
-        // Populate playerTeam with Monster_GameObjects from spawnedPlayerMonsters
+
         foreach (Monster playerMonster in gameManager.spawnedPlayerMonsters)
         {
             if (playerMonster != null && playerMonster.Monster_GameObject != null)
@@ -40,18 +55,18 @@ public class TargetingSystem : MonoBehaviour
                 playerTeam.Add(playerMonster.Monster_GameObject);
             }
         }
-        Debug.Log($"Initialized {enemyTeam.Count} enemyteam contains.");
-        Debug.Log($"Initialized {playerTeam.Count} playerTeam contains.");
 
-        allTargets = new List<GameObject>();
         allTargets.AddRange(enemyTeam);
         allTargets.AddRange(playerTeam);
-        Debug.Log($"Initialized {allTargets.Count} all targets.");
+
+        Debug.Log($"Initialized {enemyTeam.Count} enemy team targets.");
+        Debug.Log($"Initialized {playerTeam.Count} player team targets.");
+        Debug.Log($"Initialized {allTargets.Count} total targets.");
     }
 
     public GameObject GetCurrentTarget()
     {
-        if (allTargets.Count == 0)
+        if (allTargets == null || allTargets.Count == 0)
         {
             Debug.LogWarning("No targets available!");
             return null;
@@ -153,7 +168,7 @@ public class TargetingSystem : MonoBehaviour
             if (spriteRenderer != null)
             {
                 spriteRenderer.color = Color.red; // Highlight the selected target in red
-                //Debug.Log($"Highlighted Target: {selectedTargetGameObject.name} is now highlighted in red.");
+                Debug.Log($"Highlighted Target: {selectedTargetGameObject.name} is now highlighted in red.");
             }
             else
             {
@@ -168,6 +183,13 @@ public class TargetingSystem : MonoBehaviour
 
     public void HighlightClearTarget()
     {
+        // Check if allTargets is null or empty
+        if (allTargets == null || allTargets.Count == 0)
+        {
+            Debug.LogWarning("No targets available to clear highlights!");
+            return;
+        }
+
         // Reset the color of all targets to white
         foreach (var targetGameObject in allTargets)
         {
@@ -182,6 +204,10 @@ public class TargetingSystem : MonoBehaviour
                 {
                     Debug.LogError("SpriteRenderer component is missing on the target's GameObject!");
                 }
+            }
+            else
+            {
+                Debug.LogWarning("Target GameObject is null!");
             }
         }
     }
